@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/components/intro/text_component.dart';
+import 'package:unic_app/components/intro/upper_part.dart';
 import 'package:unic_app/components/primary_button.dart';
 import 'package:unic_app/views/onboarding/onboarding_viewmodel.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -16,41 +18,7 @@ class OnboardingView extends StatelessWidget {
               children: [
                 Flexible(
                   flex: 3,
-                  child: Container(
-                    width: double.infinity,
-                    color: kPrimaryColor,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: size.height / (812 / 70),
-                        ),
-                        AutoSizeText(
-                          'Welcome,',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
-                        ),
-                        AutoSizeText(
-                          'Our Community!',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(
-                          height: size.height / (812 / 44),
-                        ),
-                        Image.asset(
-                          'assets/onboarding/main_image.png',
-                          width: size.width / (375 / 343),
-                          height: size.height / (815 / 300),
-                        )
-                      ],
-                    ),
-                  ),
+                  child: IntroUpperPart(size: size),
                 ),
                 Flexible(
                   flex: 2,
@@ -68,65 +36,15 @@ class OnboardingView extends StatelessWidget {
                               model.index = value;
                             },
                             children: [
-                              Column(
-                                children: [
-                                  SizedBox(
-                                    height: size.height / (815 / 56),
-                                  ),
-                                  AutoSizeText(
-                                    'Title here',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                        color: kTextPrimary),
-                                  ),
-                                  SizedBox(
-                                    height: size.height / (815 / 16),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: size.width / (375 / 16),
-                                    ),
-                                    child: AutoSizeText(
-                                      'Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xff565C61)),
-                                    ),
-                                  ),
-                                ],
+                              IntroTextComponent(
+                                size: size,
+                                text: model.text1,
+                                title: model.title1,
                               ),
-                              Column(
-                                children: [
-                                  SizedBox(
-                                    height: size.height / (815 / 56),
-                                  ),
-                                  AutoSizeText(
-                                    'Title here',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                        color: kTextPrimary),
-                                  ),
-                                  SizedBox(
-                                    height: size.height / (815 / 16),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: size.width / (375 / 16),
-                                    ),
-                                    child: AutoSizeText(
-                                      'Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xff565C61)),
-                                    ),
-                                  ),
-                                ],
+                              IntroTextComponent(
+                                size: size,
+                                text: model.text2,
+                                title: model.title2,
                               ),
                             ],
                           ),
