@@ -1,16 +1,23 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/arrow_back_button.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/profile%20page/profile_page_comp.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_viewmodel.dart';
 
-class UserProfilePageView extends StatelessWidget {
+class UserProfilePageView extends KFDrawerContent {
+  @override
+  _UserProfilePageViewState createState() => _UserProfilePageViewState();
+}
+
+class _UserProfilePageViewState extends State<UserProfilePageView> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return ViewModelBuilder<UserProfilePageViewModel>.reactive(
         builder: (context, UserProfilePageViewModel model, child) => Scaffold(
               backgroundColor: kPrimaryColor,
