@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:unic_app/views/contact%20us/contact_us.dart';
 import 'package:unic_app/views/no%20internet/no_internet_page.dart';
 import 'package:unic_app/views/onboarding/onboarding_view.dart';
@@ -11,9 +12,11 @@ import 'package:unic_app/views/user/profile_page/profile%20edit/profile_edit_vie
 import 'package:unic_app/views/user/profile_page/profile_page_view.dart';
 import 'package:unic_app/views/user/promotions_page/promotions_view.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_view.dart';
+import 'package:unic_app/views/user/support/support_view.dart';
 import 'package:unic_app/views/user/terms%20and%20conditions/terms_view.dart';
 
 void main() {
+  initializeDateFormatting();
   runApp(MyApp());
 }
 
@@ -22,11 +25,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Inter'),
-      // home: OnboardingView(),
-      home: ContactUs(),
-      //home: UserProfileEditPageView(),
-    );
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(fontFamily: 'Inter'),
+        // home: OnboardingView(),
+        home: SupportView()
+        //home: UserProfileEditPageView(),
+        );
   }
 }

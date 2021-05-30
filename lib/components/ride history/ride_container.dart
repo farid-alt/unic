@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/ride%20history/start2end_icon.dart';
+import 'package:unic_app/views/user/ride_details/ride_details_view.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_viewmodel.dart';
 
 class RideHistoryContainer extends ViewModelWidget<RideHistoryViewModel> {
@@ -15,6 +16,7 @@ class RideHistoryContainer extends ViewModelWidget<RideHistoryViewModel> {
     @required this.rideDate,
     @required this.ridePrice,
     @required this.rideRating,
+    @required this.index,
   }) : super(key: key);
 
   final Size size;
@@ -22,6 +24,7 @@ class RideHistoryContainer extends ViewModelWidget<RideHistoryViewModel> {
   final String rideDate;
   final double rideRating;
   final double ridePrice;
+  final int index;
 
   @override
   Widget build(BuildContext context, RideHistoryViewModel model) {
@@ -113,22 +116,16 @@ class RideHistoryContainer extends ViewModelWidget<RideHistoryViewModel> {
             ],
           ),
           SizedBox(height: size.height / (812 / 16)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              GestureDetector(
-                  onTap: () {
-                    //TODO:Implement Navigatios
-                  },
-                  child: buildContainerBtnText(size, 'Ride details')),
-              SizedBox(width: size.width / (375 / 9)),
-              GestureDetector(
-                  onTap: () {
-                    //TODO: Implement navigation
-                  },
-                  child: buildContainerBtnText(size, 'Support')),
-            ],
-          )
+          GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => RideDetailsView(
+                              index: index,
+                            )));
+              },
+              child: buildContainerBtnText(size, 'Ride details'))
         ],
       ),
       padding: EdgeInsets.symmetric(
@@ -144,7 +141,7 @@ class RideHistoryContainer extends ViewModelWidget<RideHistoryViewModel> {
 
 Container buildContainerBtnText(Size size, String title) {
   return Container(
-    width: size.width / (375 / 151),
+    width: double.infinity,
     height: size.height / (812 / 48),
     child: Center(
       child: AutoSizeText(

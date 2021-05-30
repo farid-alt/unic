@@ -5,8 +5,10 @@ class User {
   String fullname;
   String email;
   String phone;
+  int id;
   User(
       {this.name,
+      this.id,
       this.surname,
       this.profilePicAdress = ' ',
       this.email,

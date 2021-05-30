@@ -26,14 +26,14 @@ class BackWithTitle extends StatelessWidget {
             Icon(Icons.arrow_back_ios,
                 color: isBlue ? Colors.white : kPrimaryColor,
                 size: size.height / (812 / 24)),
-            // SizedBox(width: size.width / (375 / 0)),
             AutoSizeText(
               'Back',
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: isBlue ? Colors.white : kPrimaryColor),
-            )
+            ),
+            // SizedBox(width: size.width / (375 / 0)),
           ]),
         ),
         AutoSizeText(
@@ -46,14 +46,18 @@ class BackWithTitle extends StatelessWidget {
         ),
 
         // SizedBox(width: size.width / (375 / 10)),
-        AutoSizeText('Back',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Colors.transparent,
-            )),
-        // Icon(Icons.arrow_back_ios,
-        //     color: Colors.transparent, size: size.height / (812 / 24)),
+        Row(
+          children: [
+            AutoSizeText('Back',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.transparent,
+                )),
+            Icon(Icons.arrow_back_ios,
+                color: Colors.transparent, size: size.height / (812 / 24)),
+          ],
+        ),
       ],
     );
   }
