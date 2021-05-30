@@ -6,6 +6,8 @@ import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/models/user/ride.dart';
+import 'package:unic_app/views/contact%20us/contact_us.dart';
+import 'package:unic_app/views/user/faq/faq_view.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_viewmodel.dart';
 import 'package:unic_app/views/user/support/support_viewmodel.dart';
 
@@ -40,11 +42,63 @@ class SupportView extends StatelessWidget {
                       rideDate:
                           '${DateFormat.MMMMd('en').format(model.rides[index].rideDate)}, ${DateFormat('hh:mm').format(model.rides[index].rideDate)}',
                       endAdress: model.rides[index].endAdress,
-                      isMoped: model.rides[index].driver.isMoped)
+                      isMoped: model.rides[index].driver.isMoped),
+                SizedBox(height: size.height / (812 / 16)),
+                GestureDetector(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => ContactUs()));
+                    },
+                    child: SimpleSupportContainer(
+                        size: size, title: 'Contact us')),
+                GestureDetector(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => FaqView()));
+                    },
+                    child: SimpleSupportContainer(size: size, title: 'FAQ')),
               ],
             ),
           )),
       viewModelBuilder: () => SupportViewModel(),
+    );
+  }
+}
+
+class SimpleSupportContainer extends StatelessWidget {
+  const SimpleSupportContainer({
+    Key key,
+    @required this.size,
+    @required this.title,
+  }) : super(key: key);
+
+  final Size size;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: size.height / (812 / 60),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          AutoSizeText('$title',
+              style: TextStyle(
+                  color: kTextPrimary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500)),
+          Icon(Icons.arrow_forward_ios,
+              color: kTextSecondaryColor, size: size.width / (375 / 20))
+        ],
+      ),
+      padding: EdgeInsets.symmetric(
+          vertical: size.height / (812 / 16),
+          horizontal: size.width / (375 / 16)),
+      margin: EdgeInsets.only(bottom: size.height / (812 / 16)),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15), color: Color(0xffF8F9FA)),
     );
   }
 }
