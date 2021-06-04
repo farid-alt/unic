@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
-import 'package:unic_app/views/user/support/support_view.dart';
+import 'package:unic_app/views/user/map_page/map_page_view.dart';
+import 'package:unic_app/views/user/payments/payments_view.dart';
 
 void main() {
   initializeDateFormatting();
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Inter'),
       // home: OnboardingView(),
-      home: SupportView(),
+      home: PaymentsView(),
       //home: UserProfileEditPageView(),
     );
   }
