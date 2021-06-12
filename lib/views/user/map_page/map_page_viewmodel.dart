@@ -36,10 +36,14 @@ class MapPageViewModel extends ChangeNotifier {
   String _distanceOfTrip = '15';
   String _paymentType = 'Cash';
   String _timeToArriveToYouleft = '2';
+  String _timeToArriveToDestination = '5';
   // PolylineResult polylineResult;
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
+  double _ratingToTrip = 0;
+  int _tipSelectedIndex = 0;
+
   Driver _driver = Driver(
       isMoped: true,
       profilePicAdress:
@@ -50,10 +54,31 @@ class MapPageViewModel extends ChangeNotifier {
       vehicleNumberId: '123awq1',
       number: '+994553660475');
   bool _detailsOpened = false;
+  double get ratingToTrip => this._ratingToTrip;
+  set ratingToTrip(value) {
+    this._ratingToTrip = value;
+    notifyListeners();
+  }
+
+  int get tipSelectedIndex => this._tipSelectedIndex;
+
+  set tipSelectedIndex(value) {
+    this._tipSelectedIndex = value;
+    print('a');
+    notifyListeners();
+  }
 
   bool get detailsOpened => this._detailsOpened;
   set detailsOpened(value) {
     this._detailsOpened = value;
+    notifyListeners();
+  }
+
+  bool _detailsOpenedOnWay = false;
+
+  bool get detailsOpenedOnWay => this._detailsOpenedOnWay;
+  set detailsOpenedOnWay(value) {
+    this._detailsOpenedOnWay = value;
     notifyListeners();
   }
 
@@ -86,6 +111,7 @@ class MapPageViewModel extends ChangeNotifier {
 
   Driver get driver => this._driver;
   String get timeToArrivetToYouLeft => this._timeToArriveToYouleft;
+  String get timeToArrivetToDestination => this._timeToArriveToDestination;
 
   String get paymentType => this._paymentType;
 

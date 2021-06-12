@@ -6,6 +6,7 @@ class User {
   String email;
   String phone;
   int id;
+
   User(
       {this.name,
       this.id,

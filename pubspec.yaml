@@ -47,6 +47,7 @@ dependencies:
   animator: ^1.0.0+5
   url_launcher: ^6.0.6
   flutter_polyline_points: ^1.0.0
+  percent_indicator: ^2.1.6
   # sliding_up_panel: ^2.0.0+1
   # http: ^0.13.3
 
