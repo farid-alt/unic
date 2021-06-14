@@ -28,7 +28,7 @@ class SelectAdressView extends StatelessWidget {
                         Container(
                           width: size.width,
                           constraints: BoxConstraints(
-                              minHeight: size.height / (815 / 220)),
+                              minHeight: size.height / (815 / 175)),
                           decoration: BoxDecoration(
                             color: kPrimaryColor,
                           ),
@@ -276,15 +276,24 @@ class SelectAdressView extends StatelessWidget {
                                   adress: model.suggestedAdresses[index],
                                   onTap: () {
                                     if (model.activeTextfield == 0) {
-                                      model.firstAdressName = model
-                                          .suggestedAdresses[index].nameOfPlace;
+                                      model.firstAdress = Adress(
+                                          nameOfPlace: model
+                                              .suggestedAdresses[index]
+                                              .nameOfPlace,
+                                          adress: model
+                                              .suggestedAdresses[index].adress);
                                       model.textEditingController1.text = model
                                           .suggestedAdresses[index].nameOfPlace;
                                     } else {
-                                      model.adresses[model.activeTextfield - 1]
-                                              .nameOfPlace =
-                                          model.suggestedAdresses[index]
-                                              .nameOfPlace;
+                                      model.adresses[
+                                              model.activeTextfield - 1] =
+                                          Adress(
+                                              nameOfPlace: model
+                                                  .suggestedAdresses[index]
+                                                  .nameOfPlace,
+                                              adress: model
+                                                  .suggestedAdresses[index]
+                                                  .adress);
                                       model
                                               .controllers[
                                                   model.activeTextfield - 1]
@@ -411,6 +420,41 @@ class ElementSelectAdress extends StatelessWidget {
   Size size;
   Color color;
   ElementSelectAdress({this.size, @required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: size.height / (815 / 17)),
+      child: Column(
+        children: [
+          SvgPicture.asset(
+            'assets/map_page/Location.svg',
+            width: size.width / (375 / 11),
+            height: size.height / (815 / 15),
+            color: color,
+          ),
+          SizedBox(
+            height: size.height / (815 / 12),
+          ),
+          SvgPicture.asset('assets/ride_history/Line 7.svg', color: color),
+          SizedBox(
+            height: size.height / (815 / 12),
+          ),
+          SvgPicture.asset(
+            'assets/map_page/OtherAdress.svg',
+            width: size.width / (375 / 11),
+            height: size.height / (815 / 15),
+            color: color,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ElementSelectAdressSmall extends StatelessWidget {
+  Size size;
+  Color color;
+  ElementSelectAdressSmall({this.size, @required this.color});
   @override
   Widget build(BuildContext context) {
     return Container(
