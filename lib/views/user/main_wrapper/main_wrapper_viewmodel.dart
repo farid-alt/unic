@@ -14,6 +14,10 @@ class MainWrapperViewModel extends ChangeNotifier {
   List _pages = [
     MapPageView(),
     UserProfilePageView(),
+    MapPageView(),
+    UserProfilePageView(),
+    MapPageView(),
+    // UserProfilePageView(),
   ];
 
   // int index = 0;
