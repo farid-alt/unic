@@ -81,354 +81,845 @@ class _MapPageViewState extends State<MapPageView> {
                 : model.status == StatusOfMap.ApplyYourTrip
                     ? SelectTripOptions(size: size)
                     : model.status == StatusOfMap.DriverComes
-                        ? Stack(
-                            children: [
-                              Align(
-                                alignment: Alignment.bottomCenter,
-                                child: AnimatedContainer(
-                                  height: model.detailsOpened
-                                      ? size.height / 1.4
-                                      : size.height / 2.3,
-                                  color: Colors.white,
-                                  duration: Duration(milliseconds: 300),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        constraints: BoxConstraints(
-                                          minHeight: size.height / (815 / 110),
-                                        ),
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: kPrimaryColor,
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(16),
-                                            topRight: Radius.circular(16),
-                                          ),
-                                        ),
-                                        child: Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: size.height / (815 / 16),
-                                            horizontal: size.width / (375 / 16),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  CircleAvatar(
-                                                    radius:
-                                                        size.width / (375 / 32),
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    child: CircleAvatar(
-                                                      radius: size.width /
-                                                          (375 / 30),
-                                                      backgroundImage:
-                                                          NetworkImage(model
-                                                              .driver
-                                                              .profilePicAdress),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width:
-                                                        size.width / (375 / 16),
-                                                  ),
-                                                  Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      AutoSizeText(
-                                                        'Your driver is ${model.driver.name}',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                      SizedBox(
-                                                        height: size.height /
-                                                            (815 / 4),
-                                                      ),
-                                                      RatingBarIndicator(
-                                                          itemSize: size.width /
-                                                              (375 / 15),
-                                                          rating: model
-                                                              .driver.rating,
-                                                          itemBuilder:
-                                                              (context, index) {
-                                                            return Icon(
-                                                              Icons.star,
-                                                              color:
-                                                                  Colors.white,
-                                                            );
-                                                          }),
-                                                      SizedBox(
-                                                        height: size.height /
-                                                            (815 / 5),
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          //TODO Change to driver vehicle
-                                                          SvgPicture.asset(true
-                                                              ? 'assets/moped.svg'
-                                                              : 'assets/moto.svg'),
-                                                          SizedBox(
-                                                            width: size.width /
-                                                                (375 / 8),
-                                                          ),
-                                                          AutoSizeText(
-                                                            '${model.driver.vehicleNumberId}',
-                                                            style: TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700,
-                                                                color: Colors
-                                                                    .white),
-                                                          )
-                                                        ],
-                                                      )
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                              Column(
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      AutoSizeText(
-                                                        '${model.timeToArrivetToYouLeft} min',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                      SizedBox(
-                                                        width: size.width /
-                                                            (375 / 10),
-                                                      ),
-                                                      SvgPicture.asset(
-                                                          'assets/map_page/time_square.svg',
-                                                          color: Colors.white)
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    height: size.height /
-                                                        (815 / 17),
-                                                  ),
-                                                  InkWell(
-                                                    onTap: () => launch(
-                                                        model.driver.number),
-                                                    child: Container(
-                                                        width: size.width /
-                                                            (375 / 88),
-                                                        height: size.height /
-                                                            (815 / 36),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                          color:
-                                                              Color(0xff37A9FF),
-                                                        ),
-                                                        child: Center(
-                                                          child: AutoSizeText(
-                                                            'Call',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600),
-                                                          ),
-                                                        )),
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal:
-                                                size.width / (375 / 16)),
-                                        child: Column(
-                                          children: [
-                                            SizedBox(
-                                              height: size.height / (815 / 16),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: AutoSizeText(
-                                                'Your trip',
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: kTextPrimary),
-                                              ),
-                                            ),
-                                            Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  children: [
-                                                    ElementSelectAdress(
-                                                        size: size,
-                                                        color: kPrimaryColor),
-                                                    for (var i = 0;
-                                                        i <
-                                                            model.adresses
-                                                                .length;
-                                                        i++)
-                                                      ElementSelectAdress2(
-                                                          size: size,
-                                                          color: kPrimaryColor,
-                                                          last: i !=
-                                                              model.adresses
-                                                                      .length -
-                                                                  1)
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  width:
-                                                      size.width / (375 / 14),
-                                                ),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Column(
-                                                      children: [
-                                                        Padding(
-                                                          padding: EdgeInsets.only(
-                                                              top: size.height /
-                                                                  (815 / 13)),
-                                                          child: AutoSizeText(
-                                                            '${model.firstAdress.nameOfPlace}',
-                                                            style: TextStyle(
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                color:
-                                                                    kPrimaryColor),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    for (var i = 0;
-                                                        i <
-                                                            model.adresses
-                                                                .length;
-                                                        i++)
-                                                      Padding(
-                                                        padding: EdgeInsets.only(
-                                                            top: size.height /
-                                                                (815 / 40)),
-                                                        child: Column(
-                                                          children: [
-                                                            AutoSizeText(
-                                                              '${model.adresses[i].nameOfPlace}',
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  color:
-                                                                      kPrimaryColor),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-
-                                                    // return Text('a');
-                                                  ],
-                                                )
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: size.height / (815 / 16),
-                                            ),
-                                            ChangeDestination(size: size),
-                                            SizedBox(
-                                              height: size.height / (815 / 8),
-                                            ),
-                                            TripInfoContainer(size: size),
-                                            SizedBox(
-                                              height: size.height / (815 / 8),
-                                            ),
-                                            PaymentType(size: size),
-                                            SizedBox(
-                                              height: size.height / (815 / 16),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Container(
-                                  width: size.width,
-                                  height: size.height / (815 / 100),
-                                  color: Colors.white,
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        width: size.width / (375 / 185),
-                                        child: PrimaryButton(
-                                            function: () => model.status =
-                                                StatusOfMap.Start,
-                                            color: kTextSecondaryColor,
-                                            size: size,
-                                            title: 'Cancel',
-                                            textColor: Colors.white),
-                                      ),
-                                      Container(
-                                        width: size.width / (375 / 185),
-                                        child: PrimaryButton(
-                                            function: () =>
-                                                model.detailsOpened =
-                                                    !model.detailsOpened,
-                                            color: kPrimaryColor,
-                                            size: size,
-                                            title: model.detailsOpened
-                                                ? 'Close'
-                                                : 'Details',
-                                            textColor: Colors.white),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                        : StartMapBottom(size: size)
+                        ? DriverIsComing(size: size)
+                        : model.status == StatusOfMap.YouAreOnWay
+                            ? YouAreOnWay(size: size)
+                            : StartMapBottom(size: size)
           ],
         ),
       )),
       viewModelBuilder: () => MapPageViewModel(),
+    );
+  }
+}
+
+class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
+  const YouAreOnWay({
+    Key key,
+    @required this.size,
+  }) : super(key: key);
+
+  final Size size;
+
+  @override
+  Widget build(BuildContext context, model) {
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: AnimatedContainer(
+            height: model.detailsOpenedOnWay
+                ? size.height / 1.4
+                : size.height / 2.3,
+            color: Colors.white,
+            duration: Duration(milliseconds: 300),
+            child: Column(
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                    minHeight: size.height / (815 / 110),
+                  ),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: size.height / (815 / 16),
+                      horizontal: size.width / (375 / 16),
+                    ),
+                    child: model.detailsOpenedOnWay
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    radius: size.width / (375 / 32),
+                                    backgroundColor: Colors.white,
+                                    child: CircleAvatar(
+                                      radius: size.width / (375 / 30),
+                                      backgroundImage: NetworkImage(
+                                          model.driver.profilePicAdress),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: size.width / (375 / 16),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      AutoSizeText(
+                                        'Your driver is ${model.driver.name}',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white),
+                                      ),
+                                      SizedBox(
+                                        height: size.height / (815 / 4),
+                                      ),
+                                      RatingBarIndicator(
+                                          itemSize: size.width / (375 / 15),
+                                          rating: model.driver.rating,
+                                          itemBuilder: (context, index) {
+                                            return Icon(
+                                              Icons.star,
+                                              color: Colors.white,
+                                            );
+                                          }),
+                                      SizedBox(
+                                        height: size.height / (815 / 5),
+                                      ),
+                                      Row(
+                                        children: [
+                                          //TODO Change to driver vehicle
+                                          SvgPicture.asset(true
+                                              ? 'assets/moped.svg'
+                                              : 'assets/moto.svg'),
+                                          SizedBox(
+                                            width: size.width / (375 / 8),
+                                          ),
+                                          AutoSizeText(
+                                            '${model.driver.vehicleNumberId}',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white),
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        : Center(
+                            child: AutoSizeText(
+                              '${model.timeToArrivetToDestination} min left',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: size.width / (375 / 16)),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: size.height / (815 / 16),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText(
+                          'Your trip',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: kTextPrimary),
+                        ),
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              ElementSelectAdress(
+                                  size: size, color: kPrimaryColor),
+                              for (var i = 0; i < model.adresses.length; i++)
+                                ElementSelectAdress2(
+                                    size: size,
+                                    color: kPrimaryColor,
+                                    last: i != model.adresses.length - 1)
+                            ],
+                          ),
+                          SizedBox(
+                            width: size.width / (375 / 14),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        top: size.height / (815 / 13)),
+                                    child: AutoSizeText(
+                                      '${model.firstAdress.nameOfPlace}',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: kPrimaryColor),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              for (var i = 0; i < model.adresses.length; i++)
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      top: size.height / (815 / 40)),
+                                  child: Column(
+                                    children: [
+                                      AutoSizeText(
+                                        '${model.adresses[i].nameOfPlace}',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: kPrimaryColor),
+                                      )
+                                    ],
+                                  ),
+                                ),
+
+                              // return Text('a');
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: size.height / (815 / 16),
+                      ),
+                      ChangeDestination(size: size),
+                      SizedBox(
+                        height: size.height / (815 / 8),
+                      ),
+                      TripInfoContainer(size: size),
+                      SizedBox(
+                        height: size.height / (815 / 8),
+                      ),
+                      PaymentType(size: size),
+                      SizedBox(
+                        height: size.height / (815 / 16),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            width: size.width,
+            height: size.height / (815 / 100),
+            color: Colors.white,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: size.height / (815 / 30)),
+              child: PrimaryButton(
+                function: () {
+                  // model.detailsOpenedOnWay = !model.detailsOpenedOnWay;
+                  // model.drawPolyline();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => YourTripEnded(
+                        size: size,
+                        model: model,
+                      ),
+                    ),
+                  );
+                },
+                color: kPrimaryColor,
+                textColor: Colors.white,
+                title: model.detailsOpenedOnWay ? 'Cancel' : 'Order details',
+                size: size,
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class YourTripEnded extends StatefulWidget {
+  YourTripEnded({Key key, this.model, this.size}) : super(key: key);
+  final MapPageViewModel model;
+  final Size size;
+
+  @override
+  _YourTripEndedState createState() => _YourTripEndedState();
+}
+
+class _YourTripEndedState extends State<YourTripEnded> {
+  TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          color: Colors.white,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: widget.size.height / (815 / 30),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: widget.size.width / (375 / 16)),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: SvgPicture.asset(
+                              'assets/map_page/close_square.svg',
+                              color: kPrimaryColor,
+                              width: 20,
+                              height: 20,
+                            ),
+                          ),
+                          AutoSizeText(
+                            'Ride completed!',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w700),
+                          ),
+                          SvgPicture.asset(
+                            'assets/close_square.svg',
+                            color: kPrimaryColor,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: widget.size.height / (815 / 30)),
+                      EndTripDriverContainer(
+                          size: widget.size, model: widget.model),
+                      SizedBox(height: widget.size.height / (815 / 70)),
+                      AutoSizeText(
+                        'How was your trip?',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: kTextPrimary),
+                      ),
+                      SizedBox(height: widget.size.height / (815 / 10)),
+                      Container(
+                        width: widget.size.width / (375 / 288),
+                        child: AutoSizeText(
+                          'Help us improve our services and your experience by rating this trip.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              height: 1.5,
+                              color: kTextSecondaryColor,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      SizedBox(height: widget.size.height / (815 / 16)),
+                      RatingBar(
+                        allowHalfRating: false,
+                        onRatingUpdate: (value) {
+                          widget.model.ratingToTrip = value;
+                        },
+                        itemCount: 5,
+                        ratingWidget: RatingWidget(
+                          full: Icon(
+                            Icons.star,
+                            color: kPrimaryColor,
+                          ),
+                          half: Icon(
+                            Icons.star_half,
+                            color: kPrimaryColor,
+                          ),
+                          empty: Icon(
+                            Icons.star_border_purple500_outlined,
+                            color: kPrimaryColor,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: widget.size.height / (815 / 48),
+                      ),
+                      AutoSizeText(
+                        'Tip',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w700),
+                      ),
+                      SizedBox(
+                        height: widget.size.height / (815 / 16),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(
+                          4,
+                          (index) => InkWell(
+                            onTap: () {
+                              widget.model.tipSelectedIndex = index;
+                              setState(() {});
+                            },
+                            child: Container(
+                              width: widget.size.width / (375 / 80),
+                              height: widget.size.height / (815 / 37),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: widget.model.tipSelectedIndex == index
+                                      ? kPrimaryColor
+                                      : Colors.transparent,
+                                  border: Border.all(
+                                      width: 1, color: kPrimaryColor)),
+                              child: Center(
+                                child: AutoSizeText(
+                                  '${index * 5} %',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color:
+                                          widget.model.tipSelectedIndex == index
+                                              ? Colors.white
+                                              : kPrimaryColor),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: widget.size.height / (815 / 48),
+                      ),
+                      Container(
+                        height: widget.size.height / (815 / 65),
+                        width: widget.size.width / (375 / 343),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Color(0xffF4F7FA),
+                        ),
+                        child: Center(
+                          child: TextField(
+                            controller: _controller,
+                            style: TextStyle(fontSize: 15, color: kTextPrimary),
+                            decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: widget.size.width / (375 / 16)),
+                                border: InputBorder.none,
+                                hintText: 'Write your comment',
+                                hintStyle: TextStyle(
+                                    fontSize: 15, color: kTextSecondaryColor)),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: widget.size.height / (815 / 60),
+                      ),
+                      PrimaryButton(
+                        size: widget.size,
+                        textColor: Colors.white,
+                        title: 'Done',
+                        color: kPrimaryColor,
+                        function: () {},
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EndTripDriverContainer extends StatelessWidget {
+  const EndTripDriverContainer({
+    Key key,
+    @required this.size,
+    @required this.model,
+  }) : super(key: key);
+
+  final Size size;
+  final MapPageViewModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(
+        minHeight: size.height / (815 / 110),
+      ),
+      width: double.infinity,
+      decoration: BoxDecoration(
+          color: kPrimaryColor, borderRadius: BorderRadius.circular(8)),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: size.height / (815 / 16),
+          horizontal: size.width / (375 / 16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: size.width / (375 / 32),
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                    radius: size.width / (375 / 30),
+                    backgroundImage:
+                        NetworkImage(model.driver.profilePicAdress),
+                  ),
+                ),
+                SizedBox(
+                  width: size.width / (375 / 16),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      'Your driver is ${model.driver.name}',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white),
+                    ),
+                    SizedBox(
+                      height: size.height / (815 / 4),
+                    ),
+                    RatingBarIndicator(
+                        itemSize: size.width / (375 / 15),
+                        rating: model.driver.rating,
+                        itemBuilder: (context, index) {
+                          return Icon(
+                            Icons.star,
+                            color: Colors.white,
+                          );
+                        }),
+                    SizedBox(
+                      height: size.height / (815 / 5),
+                    ),
+                    Row(
+                      children: [
+                        //TODO Change to driver vehicle
+                        SvgPicture.asset(
+                            true ? 'assets/moped.svg' : 'assets/moto.svg'),
+                        SizedBox(
+                          width: size.width / (375 / 8),
+                        ),
+                        AutoSizeText(
+                          '${model.driver.vehicleNumberId}',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ],
+            ),
+            AutoSizeText('5 azn',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
+  const DriverIsComing({
+    Key key,
+    @required this.size,
+  }) : super(key: key);
+
+  final Size size;
+
+  @override
+  Widget build(BuildContext context, model) {
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: AnimatedContainer(
+            height: model.detailsOpened ? size.height / 1.4 : size.height / 2.3,
+            color: Colors.white,
+            duration: Duration(milliseconds: 300),
+            child: Column(
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                    minHeight: size.height / (815 / 110),
+                  ),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: size.height / (815 / 16),
+                      horizontal: size.width / (375 / 16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              radius: size.width / (375 / 32),
+                              backgroundColor: Colors.white,
+                              child: CircleAvatar(
+                                radius: size.width / (375 / 30),
+                                backgroundImage:
+                                    NetworkImage(model.driver.profilePicAdress),
+                              ),
+                            ),
+                            SizedBox(
+                              width: size.width / (375 / 16),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AutoSizeText(
+                                  'Your driver is ${model.driver.name}',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(
+                                  height: size.height / (815 / 4),
+                                ),
+                                RatingBarIndicator(
+                                    itemSize: size.width / (375 / 15),
+                                    rating: model.driver.rating,
+                                    itemBuilder: (context, index) {
+                                      return Icon(
+                                        Icons.star,
+                                        color: Colors.white,
+                                      );
+                                    }),
+                                SizedBox(
+                                  height: size.height / (815 / 5),
+                                ),
+                                Row(
+                                  children: [
+                                    //TODO Change to driver vehicle
+                                    SvgPicture.asset(true
+                                        ? 'assets/moped.svg'
+                                        : 'assets/moto.svg'),
+                                    SizedBox(
+                                      width: size.width / (375 / 8),
+                                    ),
+                                    AutoSizeText(
+                                      '${model.driver.vehicleNumberId}',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white),
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                AutoSizeText(
+                                  '${model.timeToArrivetToYouLeft} min',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: size.width / (375 / 10),
+                                ),
+                                SvgPicture.asset(
+                                    'assets/map_page/time_square.svg',
+                                    color: Colors.white)
+                              ],
+                            ),
+                            SizedBox(
+                              height: size.height / (815 / 17),
+                            ),
+                            InkWell(
+                              onTap: () => launch(model.driver.number),
+                              child: Container(
+                                  width: size.width / (375 / 88),
+                                  height: size.height / (815 / 36),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Color(0xff37A9FF),
+                                  ),
+                                  child: Center(
+                                    child: AutoSizeText(
+                                      'Call',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  )),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: size.width / (375 / 16)),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: size.height / (815 / 16),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: AutoSizeText(
+                          'Your trip',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: kTextPrimary),
+                        ),
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              ElementSelectAdress(
+                                  size: size, color: kPrimaryColor),
+                              for (var i = 0; i < model.adresses.length; i++)
+                                ElementSelectAdress2(
+                                    size: size,
+                                    color: kPrimaryColor,
+                                    last: i != model.adresses.length - 1)
+                            ],
+                          ),
+                          SizedBox(
+                            width: size.width / (375 / 14),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        top: size.height / (815 / 13)),
+                                    child: AutoSizeText(
+                                      '${model.firstAdress.nameOfPlace}',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: kPrimaryColor),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              for (var i = 0; i < model.adresses.length; i++)
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      top: size.height / (815 / 40)),
+                                  child: Column(
+                                    children: [
+                                      AutoSizeText(
+                                        '${model.adresses[i].nameOfPlace}',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: kPrimaryColor),
+                                      )
+                                    ],
+                                  ),
+                                ),
+
+                              // return Text('a');
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: size.height / (815 / 16),
+                      ),
+                      ChangeDestination(size: size),
+                      SizedBox(
+                        height: size.height / (815 / 8),
+                      ),
+                      TripInfoContainer(size: size),
+                      SizedBox(
+                        height: size.height / (815 / 8),
+                      ),
+                      PaymentType(size: size),
+                      SizedBox(
+                        height: size.height / (815 / 16),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            width: size.width,
+            height: size.height / (815 / 100),
+            color: Colors.white,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: size.width / (375 / 185),
+                  child: PrimaryButton(
+                      function: () => model.status = StatusOfMap.YouAreOnWay,
+                      color: kTextSecondaryColor,
+                      size: size,
+                      title: 'Cancel',
+                      textColor: Colors.white),
+                ),
+                Container(
+                  width: size.width / (375 / 185),
+                  child: PrimaryButton(
+                      function: () =>
+                          model.detailsOpened = !model.detailsOpened,
+                      color: kPrimaryColor,
+                      size: size,
+                      title: model.detailsOpened ? 'Close' : 'Details',
+                      textColor: Colors.white),
+                )
+              ],
+            ),
+          ),
+        )
+      ],
     );
   }
 }
@@ -954,27 +1445,36 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
               alignment: Alignment.center,
               child: InkWell(
                 onTap: () {
-                  Navigator.of(context)
-                      .push(CupertinoPageRoute(
-                    fullscreenDialog: true,
-                    builder: (BuildContext context) {
-                      return SelectAdressView();
-                    },
-                  ))
-                      .then((value) async {
-                    if (value[0] == 'OK') {
-                      try {
-                        await model.animateToMyPosition();
-                        model.status = StatusOfMap.ApplyYourTrip;
-                        model.firstAdress = value[1];
-                        model.adresses = value[2];
+                  // Navigator.of(context)
+                  //     .push(CupertinoPageRoute(
+                  //   fullscreenDialog: true,
+                  //   builder: (BuildContext context) {
+                  //     return SelectAdressView();
+                  //   },
+                  // ))
+                  //     .then((value) async {
+                  //   if (value[0] == 'OK') {
+                  //     try {
+                  //       await model.animateToMyPosition();
+                  //       model.status = StatusOfMap.ApplyYourTrip;
+                  //       model.firstAdress = value[1];
+                  //       model.adresses = value[2];
 
-                        print('Done');
-                      } catch (e) {
-                        print(e);
-                      }
-                    }
-                  });
+                  //       print('Done');
+                  //     } catch (e) {
+                  //       print(e);
+                  //     }
+                  //   }
+                  // });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => YourTripEnded(
+                        size: size,
+                        model: model,
+                      ),
+                    ),
+                  );
                 },
                 child: WhereToGo(size: size),
               ),
