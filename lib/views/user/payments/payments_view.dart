@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -5,6 +7,7 @@ import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/views/user/payments/payments_viewmodel.dart';
+import '/views/user/add card/add_card_view.dart';
 
 class PaymentsView extends StatelessWidget {
   @override
@@ -29,13 +32,38 @@ class PaymentsView extends StatelessWidget {
               SizedBox(height: size.height / (812 / 55)),
               for (int i = 0; i < model.payments.length; i++)
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    PaymentMethodRow(size: size, index: i),
-                    SizedBox(height: size.height / (812 / 28))
-                  ],
-                )
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PaymentMethodRow(size: size, index: i),
+                      SizedBox(height: size.height / (812 / 28))
+                    ]),
+              Expanded(child: SizedBox(height: 1)),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddCardView(model: model)));
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: size.height / (812 / 60),
+                  child: Center(
+                    child: AutoSizeText(
+                      'Add card',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                      color: kPrimaryColor,
+                      borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+              SizedBox(height: size.height / (812 / 10)),
             ],
           ),
         ),
@@ -67,12 +95,12 @@ class PaymentMethodRow extends ViewModelWidget<PaymentsViewModel> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SvgPicture.asset(
+              Image.asset(
                   model.payments[index]['card'].type == PaymentType.MasterCard
-                      ? 'assets/mastercard.svg'
+                      ? 'assets/master.png'
                       : model.payments[index]['card'].type == PaymentType.Visa
-                          ? 'assets/visa.svg'
-                          : 'assets/Wallet.svg',
+                          ? 'assets/visa.png'
+                          : 'assets/Wallet.png',
                   height: size.width / (375 / 32),
                   width: size.width / (375 / 32)),
               SizedBox(width: size.width / (375 / 16)),

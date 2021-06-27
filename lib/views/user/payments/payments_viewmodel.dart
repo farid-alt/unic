@@ -6,6 +6,14 @@ enum PaymentType { MasterCard, Visa, Cash }
 class PaymentsViewModel extends BaseViewModel {
   PaymentType _paymentType = PaymentType.MasterCard;
 
+  void justNotify() => notifyListeners;
+
+  void newCard(card) {
+    _payments.add(card);
+    print(_payments);
+    notifyListeners();
+  }
+
   List<Map<String, dynamic>> _payments = [
     {
       'card': PaymentMethod(
