@@ -85,14 +85,15 @@ class _DriverMapViewState extends State<DriverMapView> {
                       ),
                       child: Center(
                         child: PrimaryButton(
-                          function: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => DriverYourTripEnded(
-                                        model: model,
-                                        size: size,
-                                      ))),
-                          // model.status = StatusOfMapDriver.AcceptTrip,
+                          function: () =>
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => DriverYourTripEnded(
+                              //               model: model,
+                              //               size: size,
+                              //             ))),
+                              model.status = StatusOfMapDriver.AcceptTrip,
                           size: size,
                           color: kPrimaryColor,
                           textColor: Colors.white,
@@ -131,10 +132,10 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 100),
         height: model.detailsOpened
-            ? size.height / (815 / 410)
-            : size.height / (815 / 350),
+            ? size.height / (815 / 460)
+            : size.height / (815 / 385),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(15), topRight: Radius.circular(15)),
@@ -186,79 +187,93 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                     vertical: size.height / (815 / 16),
                     horizontal: size.width / (375 / 16),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Column(
                     children: [
+                      Align(
+                        child: Container(
+                          height: 2,
+                          width: 30,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              color: Colors.white),
+                        ),
+                      ),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          CircleAvatar(
-                            radius: size.width / (375 / 32),
-                            backgroundColor: Colors.white,
-                            child: CircleAvatar(
-                              radius: size.width / (375 / 30),
-                              backgroundImage:
-                                  NetworkImage(model.customer.profilePicAdress),
-                            ),
-                          ),
-                          SizedBox(
-                            width: size.width / (375 / 16),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              AutoSizeText(
-                                'Your trip is with ${model.customer.name}',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white),
+                              CircleAvatar(
+                                radius: size.width / (375 / 32),
+                                backgroundColor: Colors.white,
+                                child: CircleAvatar(
+                                  radius: size.width / (375 / 30),
+                                  backgroundImage: NetworkImage(
+                                      model.customer.profilePicAdress),
+                                ),
                               ),
                               SizedBox(
-                                height: size.height / (815 / 4),
+                                width: size.width / (375 / 16),
                               ),
-                              Row(
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  //TODO Change to driver vehicle
-
                                   AutoSizeText(
-                                    '${model.customer.phone}',
+                                    'Your trip is with ${model.customer.name}',
                                     style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
                                         color: Colors.white),
+                                  ),
+                                  SizedBox(
+                                    height: size.height / (815 / 4),
+                                  ),
+                                  Row(
+                                    children: [
+                                      //TODO Change to driver vehicle
+
+                                      AutoSizeText(
+                                        '${model.customer.phone}',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white),
+                                      )
+                                    ],
                                   )
                                 ],
-                              )
+                              ),
                             ],
                           ),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          InkWell(
-                            onTap: () => launch(model.customer.phone),
-                            child: Container(
-                                width: size.width / (375 / 88),
-                                height: size.height / (815 / 36),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: Color(0xff37A9FF),
-                                ),
-                                child: Center(
-                                  child: AutoSizeText(
-                                    'Call',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                )),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                onTap: () => launch(model.customer.phone),
+                                child: Container(
+                                    width: size.width / (375 / 88),
+                                    height: size.height / (815 / 36),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Color(0xff37A9FF),
+                                    ),
+                                    child: Center(
+                                      child: AutoSizeText(
+                                        'Call',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    )),
+                              )
+                            ],
                           )
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -307,12 +322,23 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                               Padding(
                                 padding: EdgeInsets.only(
                                     top: size.height / (815 / 13)),
-                                child: AutoSizeText(
-                                  '${model.firstAdress.nameOfPlace}',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: kPrimaryColor),
+                                child: Column(
+                                  children: [
+                                    AutoSizeText(
+                                      '${model.firstAdress.nameOfPlace}',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: kPrimaryColor),
+                                    ),
+                                    AutoSizeText(
+                                      'Pick-up',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xff969B9E)),
+                                    )
+                                  ],
                                 ),
                               )
                             ],
@@ -329,6 +355,13 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: kPrimaryColor),
+                                  ),
+                                  AutoSizeText(
+                                    'Drop off',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xff969B9E)),
                                   )
                                 ],
                               ),
@@ -339,7 +372,15 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                       )
                     ],
                   ),
-                  if (model.detailsOpened) TripInfoContainerDriver(size: size),
+                  if (model.detailsOpened)
+                    Column(
+                      children: [
+                        SizedBox(
+                          height: size.height / (815 / 16),
+                        ),
+                        TripInfoContainerDriver(size: size),
+                      ],
+                    ),
                   SizedBox(
                     height: size.height / (815 / 16),
                   ),
@@ -352,10 +393,15 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                     ),
                     child: Stack(
                       children: [
-                        Center(
-                          child: AutoSizeText(
-                            'Swipe to end trip',
-                            style: TextStyle(fontSize: 20, color: Colors.white),
+                        Padding(
+                          padding:
+                              EdgeInsets.only(left: size.width / (375 / 80)),
+                          child: Center(
+                            child: AutoSizeText(
+                              'Swipe to end trip',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
                           ),
                         ),
                         AnimatedPositioned(
@@ -380,9 +426,9 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                                 print("Dragging in -Y direction");
                             },
                             child: Container(
-                              margin: EdgeInsets.all(1),
+                              margin: EdgeInsets.only(right: 1, bottom: 1),
                               width: size.width / (375 / 72),
-                              height: 58,
+                              height: 57.5,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(14),
                                   color: Colors.white),
@@ -467,7 +513,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
-        height: size.height / (815 / 350),
+        height: size.height / (815 / 380),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(15), topRight: Radius.circular(15)),
@@ -494,10 +540,10 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         CircleAvatar(
                           radius: size.width / (375 / 32),
@@ -512,6 +558,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                           width: size.width / (375 / 16),
                         ),
                         Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AutoSizeText(
@@ -522,7 +569,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                                   color: Colors.white),
                             ),
                             SizedBox(
-                              height: size.height / (815 / 4),
+                              height: size.height / (815 / 10),
                             ),
                             Row(
                               children: [
@@ -612,12 +659,26 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                               Padding(
                                 padding: EdgeInsets.only(
                                     top: size.height / (815 / 13)),
-                                child: AutoSizeText(
-                                  '${model.firstAdress.nameOfPlace}',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: kPrimaryColor),
+                                child: Column(
+                                  children: [
+                                    AutoSizeText(
+                                      '${model.firstAdress.nameOfPlace}',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: kPrimaryColor),
+                                    ),
+                                    SizedBox(
+                                      height: size.height / (815 / 2),
+                                    ),
+                                    AutoSizeText(
+                                      'Pick-up',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xff969B9E)),
+                                    )
+                                  ],
                                 ),
                               )
                             ],
@@ -634,6 +695,16 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: kPrimaryColor),
+                                  ),
+                                  SizedBox(
+                                    height: size.height / (815 / 2),
+                                  ),
+                                  AutoSizeText(
+                                    'Drop off',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xff969B9E)),
                                   )
                                 ],
                               ),
@@ -656,25 +727,50 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                     ),
                     child: Stack(
                       children: [
-                        Center(
-                          child: AutoSizeText(
-                            'Swipe to start trip',
-                            style: TextStyle(fontSize: 20, color: Colors.white),
+                        Padding(
+                          padding:
+                              EdgeInsets.only(left: size.width / (375 / 80)),
+                          child: Center(
+                            child: AutoSizeText(
+                              'Swipe to start trip',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
                           ),
                         ),
-                        InkWell(
-                          onTap: () =>
-                              model.status = StatusOfMapDriver.SwipeToEndTrip,
-                          child: Container(
-                            margin: EdgeInsets.all(1),
-                            width: size.width / (375 / 72),
-                            height: 60,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                color: Colors.white),
-                            child: Center(
-                              child: SvgPicture.asset(
-                                  'assets/map_page/arrowRight.svg'),
+                        AnimatedPositioned(
+                          left: model.endTrip ? 300 : 1,
+                          bottom: 0,
+                          duration: Duration(milliseconds: 300),
+                          child: GestureDetector(
+                            // onTap: () => model.status =
+                            //     StatusOfMapDriver
+                            //         .TripEnded,
+                            onPanUpdate: (details) {
+                              if (details.delta.dx > 0)
+                                // model.endTrip = true;
+                                model.status = StatusOfMapDriver.SwipeToEndTrip;
+                              // print("Dragging in +X direction");
+
+                              else
+                                model.endTrip = false;
+
+                              if (details.delta.dy > 0)
+                                print("Dragging in +Y direction");
+                              else
+                                print("Dragging in -Y direction");
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(right: 1, bottom: 1),
+                              width: size.width / (375 / 72),
+                              height: 57.7,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: Colors.white),
+                              child: Center(
+                                child: SvgPicture.asset(
+                                    'assets/map_page/arrowRight.svg'),
+                              ),
                             ),
                           ),
                         ),
@@ -707,7 +803,7 @@ class YouAreOnTheRoadToClient extends ViewModelWidget<DriverMapViewModel> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
-        height: size.height / (815 / 260),
+        height: size.height / (815 / 275),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(15), topRight: Radius.circular(15)),
@@ -716,14 +812,16 @@ class YouAreOnTheRoadToClient extends ViewModelWidget<DriverMapViewModel> {
         child: Padding(
           padding: EdgeInsets.symmetric(
               horizontal: size.width / (375 / 16),
-              vertical: size.height / (815 / 15)),
+              vertical: size.height / (815 / 16)),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
@@ -735,9 +833,9 @@ class YouAreOnTheRoadToClient extends ViewModelWidget<DriverMapViewModel> {
                               color: kTextPrimary),
                         ),
                       ),
-                      SizedBox(
-                        height: size.height / (815 / 10),
-                      ),
+                      // SizedBox(
+                      //   height: size.height / (815 / 6),
+                      // ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -764,12 +862,26 @@ class YouAreOnTheRoadToClient extends ViewModelWidget<DriverMapViewModel> {
                                   Padding(
                                     padding: EdgeInsets.only(
                                         top: size.height / (815 / 13)),
-                                    child: AutoSizeText(
-                                      '${model.firstAdress.nameOfPlace}',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: kPrimaryColor),
+                                    child: Column(
+                                      children: [
+                                        AutoSizeText(
+                                          '${model.firstAdress.nameOfPlace}',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: kPrimaryColor),
+                                        ),
+                                        SizedBox(
+                                          height: size.height / (815 / 2),
+                                        ),
+                                        AutoSizeText(
+                                          'Pick-up',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xff969B9E)),
+                                        )
+                                      ],
                                     ),
                                   )
                                 ],
@@ -786,6 +898,16 @@ class YouAreOnTheRoadToClient extends ViewModelWidget<DriverMapViewModel> {
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
                                             color: kPrimaryColor),
+                                      ),
+                                      SizedBox(
+                                        height: size.height / (815 / 2),
+                                      ),
+                                      AutoSizeText(
+                                        'Drop off',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xff969B9E)),
                                       )
                                     ],
                                   ),
@@ -809,9 +931,9 @@ class YouAreOnTheRoadToClient extends ViewModelWidget<DriverMapViewModel> {
                       )),
                 ],
               ),
-              SizedBox(
-                height: size.height / (815 / 18),
-              ),
+              // SizedBox(
+              //   height: size.height / (815 / 10),
+              // ),
               Container(
                 width: size.width,
                 height: 60,
@@ -821,25 +943,49 @@ class YouAreOnTheRoadToClient extends ViewModelWidget<DriverMapViewModel> {
                 ),
                 child: Stack(
                   children: [
-                    Center(
-                      child: AutoSizeText(
-                        'Swipe to accept',
-                        style: TextStyle(fontSize: 20, color: Colors.white),
+                    Padding(
+                      padding: EdgeInsets.only(left: size.width / (375 / 80)),
+                      child: Center(
+                        child: AutoSizeText(
+                          'Swipe to accept',
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
                       ),
                     ),
-                    InkWell(
-                      onTap: () =>
-                          model.status = StatusOfMapDriver.SwipeToTakeCustomer,
-                      child: Container(
-                        margin: EdgeInsets.all(1),
-                        width: size.width / (375 / 72),
-                        height: 60,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            color: Colors.white),
-                        child: Center(
-                          child: SvgPicture.asset(
-                              'assets/map_page/arrowRight.svg'),
+                    AnimatedPositioned(
+                      left: model.endTrip ? 300 : 1,
+                      bottom: 0,
+                      duration: Duration(milliseconds: 300),
+                      child: GestureDetector(
+                        // onTap: () => model.status =
+                        //     StatusOfMapDriver
+                        //         .TripEnded,
+                        onPanUpdate: (details) {
+                          if (details.delta.dx > 0)
+                            // model.endTrip = true;
+                            model.status =
+                                StatusOfMapDriver.SwipeToTakeCustomer;
+                          // print("Dragging in +X direction");
+
+                          else
+                            model.endTrip = false;
+
+                          if (details.delta.dy > 0)
+                            print("Dragging in +Y direction");
+                          else
+                            print("Dragging in -Y direction");
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(right: 1, bottom: 1),
+                          width: size.width / (375 / 72),
+                          height: 57.5,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: Colors.white),
+                          child: Center(
+                            child: SvgPicture.asset(
+                                'assets/map_page/arrowRight.svg'),
+                          ),
                         ),
                       ),
                     ),

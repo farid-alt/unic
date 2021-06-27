@@ -433,11 +433,11 @@ class ElementSelectAdress extends StatelessWidget {
             color: color,
           ),
           SizedBox(
-            height: size.height / (815 / 12),
+            height: size.height / (815 / 14),
           ),
           SvgPicture.asset('assets/ride_history/Line 7.svg', color: color),
           SizedBox(
-            height: size.height / (815 / 12),
+            height: size.height / (815 / 14),
           ),
           SvgPicture.asset(
             'assets/map_page/OtherAdress.svg',

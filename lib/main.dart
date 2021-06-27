@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
 import 'package:unic_app/views/driver/driver_profile_view.dart';
 import 'package:unic_app/views/driver/driver_profile_viewmodel.dart';
 import 'package:unic_app/views/driver_map/driver_map_view.dart';

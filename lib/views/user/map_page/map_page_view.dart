@@ -14,6 +14,7 @@ import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
+import 'package:unic_app/views/user/payments_choose_for_trip/payments_view.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_viewmodel.dart';
 import 'package:unic_app/views/user/select_adress/select_adress_view.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -120,7 +121,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                   constraints: BoxConstraints(
                     minHeight: model.detailsOpenedOnWay
                         ? size.height / (815 / 110)
-                        : size.height / (815 / 80),
+                        : size.height / (815 / 70),
                   ),
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -269,7 +270,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
-                                              color: kPrimaryColor),
+                                              color: kTextPrimary),
                                         ),
                                         AutoSizeText(
                                           'Pick up',
@@ -296,7 +297,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: kPrimaryColor),
+                                            color: kTextPrimary),
                                       ),
                                       AutoSizeText(
                                         'Drop off',
@@ -751,9 +752,12 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                 Row(
                                   children: [
                                     //TODO Change to driver vehicle
-                                    SvgPicture.asset(true
-                                        ? 'assets/moped.svg'
-                                        : 'assets/moto.svg'),
+                                    SvgPicture.asset(
+                                        true
+                                            ? 'assets/moped.svg'
+                                            : 'assets/moto.svg',
+                                        width: size.width / (375 / 24),
+                                        height: size.height / (815 / 15)),
                                     SizedBox(
                                       width: size.width / (375 / 8),
                                     ),
@@ -771,8 +775,10 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                           ],
                         ),
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 AutoSizeText(
                                   '${model.timeToArrivetToYouLeft} min',
@@ -782,7 +788,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                       color: Colors.white),
                                 ),
                                 SizedBox(
-                                  width: size.width / (375 / 10),
+                                  width: size.width / (375 / 5),
                                 ),
                                 SvgPicture.asset(
                                     'assets/map_page/time_square.svg',
@@ -870,7 +876,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
-                                              color: kPrimaryColor),
+                                              color: kTextPrimary),
                                         ),
                                         AutoSizeText(
                                           'Pick up',
@@ -897,7 +903,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: kPrimaryColor),
+                                            color: kTextPrimary),
                                       ),
                                       AutoSizeText(
                                         'Drop off',
@@ -1209,25 +1215,39 @@ class PaymentType extends ViewModelWidget<MapPageViewModel> {
                     fontWeight: FontWeight.w700,
                     color: kTextPrimary),
               ),
-              Row(
-                children: [
-                  DropdownButton<String>(
+              // Row(
+              //   children: [
+              //     DropdownButton<String>(
+              //       style: TextStyle(
+              //           color: kTextPrimary,
+              //           fontWeight: FontWeight.w500,
+              //           fontSize: 15),
+              //       value: model.paymentType,
+              //       items: <String>['Cash', 'Card'].map((String value) {
+              //         return new DropdownMenuItem<String>(
+              //           value: value,
+              //           child: new Text(value),
+              //         );
+              //       }).toList(),
+              //       onChanged: (value) {
+              //         model.paymentType = value;
+              //       },
+              //     )
+              //   ],
+              // )
+              InkWell(
+                onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PaymentsChooseForTripView()))
+                    .then((value) {
+                  model.paymentType = value;
+                }),
+                child: AutoSizeText('${model.paymentType}',
                     style: TextStyle(
                         color: kTextPrimary,
                         fontWeight: FontWeight.w500,
-                        fontSize: 15),
-                    value: model.paymentType,
-                    items: <String>['Cash', 'Card'].map((String value) {
-                      return new DropdownMenuItem<String>(
-                        value: value,
-                        child: new Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      model.paymentType = value;
-                    },
-                  )
-                ],
+                        fontSize: 15)),
               )
             ],
           ),
@@ -1586,7 +1606,7 @@ Route yourCustomRoute() {
           child: child,
         );
       },
-      transitionDuration: Duration(milliseconds: 700) //any duration you want
+      transitionDuration: Duration(milliseconds: 300) //any duration you want
       );
 }
 
