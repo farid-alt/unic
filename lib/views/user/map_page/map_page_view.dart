@@ -14,6 +14,7 @@ import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
+import 'package:unic_app/views/user/payments_choose_for_trip/payments_view.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_viewmodel.dart';
 import 'package:unic_app/views/user/select_adress/select_adress_view.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -109,15 +110,18 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
           alignment: Alignment.bottomCenter,
           child: AnimatedContainer(
             height: model.detailsOpenedOnWay
-                ? size.height / 1.4
-                : size.height / 2.3,
+                ? size.height / 1.3
+                : size.height / 2.25,
             color: Colors.white,
             duration: Duration(milliseconds: 300),
             child: Column(
               children: [
-                Container(
+                AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
                   constraints: BoxConstraints(
-                    minHeight: size.height / (815 / 110),
+                    minHeight: model.detailsOpenedOnWay
+                        ? size.height / (815 / 110)
+                        : size.height / (815 / 70),
                   ),
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -257,12 +261,25 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                   Padding(
                                     padding: EdgeInsets.only(
                                         top: size.height / (815 / 13)),
-                                    child: AutoSizeText(
-                                      '${model.firstAdress.nameOfPlace}',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: kPrimaryColor),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AutoSizeText(
+                                          '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: kTextPrimary),
+                                        ),
+                                        AutoSizeText(
+                                          'Pick up',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xff969B9E)),
+                                        )
+                                      ],
                                     ),
                                   )
                                 ],
@@ -272,13 +289,22 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                   padding: EdgeInsets.only(
                                       top: size.height / (815 / 40)),
                                   child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        '${model.adresses[i].nameOfPlace}',
+                                        '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: kPrimaryColor),
+                                            color: kTextPrimary),
+                                      ),
+                                      AutoSizeText(
+                                        'Drop off',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xff969B9E)),
                                       )
                                     ],
                                   ),
@@ -321,17 +347,17 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
               padding: EdgeInsets.only(bottom: size.height / (815 / 30)),
               child: PrimaryButton(
                 function: () {
-                  // model.detailsOpenedOnWay = !model.detailsOpenedOnWay;
-                  // model.drawPolyline();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => YourTripEnded(
-                        size: size,
-                        model: model,
-                      ),
-                    ),
-                  );
+                  model.detailsOpenedOnWay = !model.detailsOpenedOnWay;
+                  model.drawPolyline();
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => YourTripEnded(
+                  //       size: size,
+                  //       model: model,
+                  //     ),
+                  //   ),
+                  // );
                 },
                 color: kPrimaryColor,
                 textColor: Colors.white,
@@ -426,21 +452,24 @@ class _YourTripEndedState extends State<YourTripEnded> {
                       SizedBox(height: widget.size.height / (815 / 16)),
                       RatingBar(
                         allowHalfRating: false,
+                        itemSize: widget.size.width / (375 / 40),
+                        itemPadding: EdgeInsets.only(
+                            right: widget.size.width / (375 / 8)),
                         onRatingUpdate: (value) {
                           widget.model.ratingToTrip = value;
                         },
                         itemCount: 5,
                         ratingWidget: RatingWidget(
-                          full: Icon(
-                            Icons.star,
+                          full: SvgPicture.asset(
+                            'assets/map_page/star.svg',
                             color: kPrimaryColor,
                           ),
                           half: Icon(
                             Icons.star_half,
                             color: kPrimaryColor,
                           ),
-                          empty: Icon(
-                            Icons.star_border_purple500_outlined,
+                          empty: SvgPicture.asset(
+                            'assets/map_page/starWithBorder.svg',
                             color: kPrimaryColor,
                           ),
                         ),
@@ -518,16 +547,16 @@ class _YourTripEndedState extends State<YourTripEnded> {
                       SizedBox(
                         height: widget.size.height / (815 / 60),
                       ),
-                      PrimaryButton(
-                        size: widget.size,
-                        textColor: Colors.white,
-                        title: 'Done',
-                        color: kPrimaryColor,
-                        function: () {},
-                      )
                     ],
                   ),
                 ),
+                PrimaryButton(
+                  size: widget.size,
+                  textColor: Colors.white,
+                  title: 'Done',
+                  color: kPrimaryColor,
+                  function: () {},
+                )
               ],
             ),
           ),
@@ -594,6 +623,7 @@ class EndTripDriverContainer extends StatelessWidget {
                       height: size.height / (815 / 4),
                     ),
                     RatingBarIndicator(
+                        itemPadding: EdgeInsets.only(right: 5),
                         itemSize: size.width / (375 / 15),
                         rating: model.driver.rating,
                         itemBuilder: (context, index) {
@@ -653,7 +683,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
         Align(
           alignment: Alignment.bottomCenter,
           child: AnimatedContainer(
-            height: model.detailsOpened ? size.height / 1.4 : size.height / 2.3,
+            height: model.detailsOpened ? size.height / 1.4 : size.height / 2.1,
             color: Colors.white,
             duration: Duration(milliseconds: 300),
             child: Column(
@@ -722,9 +752,12 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                 Row(
                                   children: [
                                     //TODO Change to driver vehicle
-                                    SvgPicture.asset(true
-                                        ? 'assets/moped.svg'
-                                        : 'assets/moto.svg'),
+                                    SvgPicture.asset(
+                                        true
+                                            ? 'assets/moped.svg'
+                                            : 'assets/moto.svg',
+                                        width: size.width / (375 / 24),
+                                        height: size.height / (815 / 15)),
                                     SizedBox(
                                       width: size.width / (375 / 8),
                                     ),
@@ -742,8 +775,10 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                           ],
                         ),
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 AutoSizeText(
                                   '${model.timeToArrivetToYouLeft} min',
@@ -753,7 +788,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                       color: Colors.white),
                                 ),
                                 SizedBox(
-                                  width: size.width / (375 / 10),
+                                  width: size.width / (375 / 5),
                                 ),
                                 SvgPicture.asset(
                                     'assets/map_page/time_square.svg',
@@ -832,12 +867,25 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                   Padding(
                                     padding: EdgeInsets.only(
                                         top: size.height / (815 / 13)),
-                                    child: AutoSizeText(
-                                      '${model.firstAdress.nameOfPlace}',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: kPrimaryColor),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AutoSizeText(
+                                          '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: kTextPrimary),
+                                        ),
+                                        AutoSizeText(
+                                          'Pick up',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xff969B9E)),
+                                        )
+                                      ],
                                     ),
                                   )
                                 ],
@@ -847,13 +895,22 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                   padding: EdgeInsets.only(
                                       top: size.height / (815 / 40)),
                                   child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        '${model.adresses[i].nameOfPlace}',
+                                        '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: kPrimaryColor),
+                                            color: kTextPrimary),
+                                      ),
+                                      AutoSizeText(
+                                        'Drop off',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xff969B9E)),
                                       )
                                     ],
                                   ),
@@ -892,30 +949,34 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
             width: size.width,
             height: size.height / (815 / 100),
             color: Colors.white,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: size.width / (375 / 185),
-                  child: PrimaryButton(
-                      function: () => model.status = StatusOfMap.YouAreOnWay,
-                      color: kTextSecondaryColor,
-                      size: size,
-                      title: 'Cancel',
-                      textColor: Colors.white),
-                ),
-                Container(
-                  width: size.width / (375 / 185),
-                  child: PrimaryButton(
-                      function: () =>
-                          model.detailsOpened = !model.detailsOpened,
-                      color: kPrimaryColor,
-                      size: size,
-                      title: model.detailsOpened ? 'Close' : 'Details',
-                      textColor: Colors.white),
-                )
-              ],
+            child: Padding(
+              padding:
+                  EdgeInsets.symmetric(horizontal: size.width / (375 / 16)),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: size.width / (375 / 167),
+                    child: PrimaryButton2(
+                        function: () => model.status = StatusOfMap.YouAreOnWay,
+                        color: kTextSecondaryColor,
+                        size: size,
+                        title: 'Cancel',
+                        textColor: Colors.white),
+                  ),
+                  Container(
+                    width: size.width / (375 / 167),
+                    child: PrimaryButton2(
+                        function: () =>
+                            model.detailsOpened = !model.detailsOpened,
+                        color: kPrimaryColor,
+                        size: size,
+                        title: model.detailsOpened ? 'Close' : 'Details',
+                        textColor: Colors.white),
+                  )
+                ],
+              ),
             ),
           ),
         )
@@ -997,7 +1058,7 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            ElementSelectAdress(
+                            ElementSelectAdressSmall(
                               color: Colors.white,
                               size: size,
                             ),
@@ -1020,7 +1081,7 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                                   padding: EdgeInsets.only(
                                       top: size.height / (815 / 13)),
                                   child: AutoSizeText(
-                                    '${model.firstAdress.nameOfPlace}',
+                                    '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}',
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -1036,7 +1097,7 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                                 child: Column(
                                   children: [
                                     AutoSizeText(
-                                      '${model.adresses[i].nameOfPlace}',
+                                      '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -1154,25 +1215,39 @@ class PaymentType extends ViewModelWidget<MapPageViewModel> {
                     fontWeight: FontWeight.w700,
                     color: kTextPrimary),
               ),
-              Row(
-                children: [
-                  DropdownButton<String>(
+              // Row(
+              //   children: [
+              //     DropdownButton<String>(
+              //       style: TextStyle(
+              //           color: kTextPrimary,
+              //           fontWeight: FontWeight.w500,
+              //           fontSize: 15),
+              //       value: model.paymentType,
+              //       items: <String>['Cash', 'Card'].map((String value) {
+              //         return new DropdownMenuItem<String>(
+              //           value: value,
+              //           child: new Text(value),
+              //         );
+              //       }).toList(),
+              //       onChanged: (value) {
+              //         model.paymentType = value;
+              //       },
+              //     )
+              //   ],
+              // )
+              InkWell(
+                onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PaymentsChooseForTripView()))
+                    .then((value) {
+                  model.paymentType = value;
+                }),
+                child: AutoSizeText('${model.paymentType}',
                     style: TextStyle(
                         color: kTextPrimary,
                         fontWeight: FontWeight.w500,
-                        fontSize: 15),
-                    value: model.paymentType,
-                    items: <String>['Cash', 'Card'].map((String value) {
-                      return new DropdownMenuItem<String>(
-                        value: value,
-                        child: new Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      model.paymentType = value;
-                    },
-                  )
-                ],
+                        fontSize: 15)),
               )
             ],
           ),
@@ -1445,36 +1520,38 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
               alignment: Alignment.center,
               child: InkWell(
                 onTap: () {
-                  // Navigator.of(context)
-                  //     .push(CupertinoPageRoute(
-                  //   fullscreenDialog: true,
-                  //   builder: (BuildContext context) {
-                  //     return SelectAdressView();
-                  //   },
-                  // ))
-                  //     .then((value) async {
-                  //   if (value[0] == 'OK') {
-                  //     try {
-                  //       await model.animateToMyPosition();
-                  //       model.status = StatusOfMap.ApplyYourTrip;
-                  //       model.firstAdress = value[1];
-                  //       model.adresses = value[2];
+                  Navigator.of(context)
+                      //     .push(CupertinoPageRoute(
 
-                  //       print('Done');
-                  //     } catch (e) {
-                  //       print(e);
-                  //     }
-                  //   }
-                  // });
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => YourTripEnded(
-                        size: size,
-                        model: model,
-                      ),
-                    ),
-                  );
+                      //   fullscreenDialog: true,
+                      //   builder: (BuildContext context) {
+                      //     return SelectAdressView();
+                      //   },
+                      // ))
+                      .push(yourCustomRoute())
+                      .then((value) async {
+                    if (value[0] == 'OK') {
+                      try {
+                        await model.animateToMyPosition();
+                        model.status = StatusOfMap.ApplyYourTrip;
+                        model.firstAdress = value[1];
+                        model.adresses = value[2];
+
+                        print('Done');
+                      } catch (e) {
+                        print(e);
+                      }
+                    }
+                  });
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => YourTripEnded(
+                  //       size: size,
+                  //       model: model,
+                  //     ),
+                  //   ),
+                  // );
                 },
                 child: WhereToGo(size: size),
               ),
@@ -1510,6 +1587,27 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
       ),
     );
   }
+}
+
+Route yourCustomRoute() {
+  return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          SelectAdressView(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0, 1); //start position from top and left corner f.e.
+        var end = Offset.zero;
+        var curve = Curves.ease;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+      transitionDuration: Duration(milliseconds: 300) //any duration you want
+      );
 }
 
 class WhereToGo extends StatelessWidget {
@@ -1568,16 +1666,20 @@ class Overlay {
       size: 100.0,
     );
 
-    return Container(
-      child: Stack(
-        children: [
-          spinkit,
-          spinkit2,
-        ],
+    return Padding(
+      padding:
+          EdgeInsets.only(top: MediaQuery.of(context).size.height / (815 / 25)),
+      child: Container(
+        child: Stack(
+          children: [
+            spinkit,
+            spinkit2,
+          ],
+        ),
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        color: Colors.white.withOpacity(0),
       ),
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      color: Colors.white.withOpacity(0),
     );
   }
 }

@@ -83,19 +83,17 @@ class DriverYourTripEnded extends StatelessWidget {
                         ? buildContainerCash(payment: model.costOfTrip)
                         : buildContainerCard(payment: model.costOfTrip),
                     SizedBox(height: size.height / (815 / 140)),
-                    PrimaryButton(
-                      size: size,
-                      color: kPrimaryColor,
-                      function: () => Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DriverMapView())),
-                      textColor: Colors.white,
-                      title: 'Done',
-                    )
                   ],
                 ),
               ),
+              PrimaryButton(
+                size: size,
+                color: kPrimaryColor,
+                function: () => Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => DriverMapView())),
+                textColor: Colors.white,
+                title: 'Done',
+              )
             ],
           ),
         ),
@@ -125,7 +123,7 @@ class DriverYourTripEnded extends StatelessWidget {
                 AutoSizeText(
                   '$payment ',
                   style: TextStyle(
-                      fontSize: 48,
+                      fontSize: 64,
                       fontWeight: FontWeight.w700,
                       color: Colors.white),
                 ),
@@ -166,7 +164,7 @@ class DriverYourTripEnded extends StatelessWidget {
                 AutoSizeText(
                   '$payment ',
                   style: TextStyle(
-                      fontSize: 48,
+                      fontSize: 64,
                       fontWeight: FontWeight.w700,
                       color: Colors.white),
                 ),
