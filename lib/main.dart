@@ -7,11 +7,14 @@ import 'package:unic_app/views/driver/driver_profile_view.dart';
 import 'package:unic_app/views/driver/driver_profile_viewmodel.dart';
 import 'package:unic_app/views/driver_map/driver_map_view.dart';
 import 'package:unic_app/views/driver_map/driver_map_viewmodel.dart';
+import 'package:unic_app/views/onboarding/onboarding_view.dart';
 import 'package:unic_app/views/user/main_wrapper/main_wrapper_view.dart';
 import 'package:unic_app/views/user/map_page/map_page_view.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_view.dart';
 
 import 'package:unic_app/views/user/support/support_view.dart';
+
+import 'views/user/code_page/code_page_view.dart';
 
 void main() {
   initializeDateFormatting();
@@ -28,7 +31,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Inter',
       ),
       // home: OnboardingView(),
-      home: MapPageView(),
+      home: CodePageView(),
       //home: UserProfileEditPageView(),
     );
   }

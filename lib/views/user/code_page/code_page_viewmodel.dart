@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/services/web_services.dart';
 //import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class CodePageViewModel extends ChangeNotifier {
@@ -38,5 +40,46 @@ class CodePageViewModel extends ChangeNotifier {
   set number(String text) {
     _number = text;
     notifyListeners();
+  }
+
+  login() async {
+    var data = await WebService.postCall(url: LOGIN, data: {
+      'phone': _number,
+    }, headers: {
+      'Accept': 'application/json'
+    });
+    if (data[0] == 200) {
+      _trueCode = data[1]['data']['customer']['verification_code'].toString();
+    }
+  }
+
+  loginCodeConfirm() async {
+    var data = await WebService.postCall(
+        url: CODE_CONFIRM,
+        data: {'phone': _number, 'verification_code': _trueCode},
+        headers: {'Accept': 'application/json'});
+    if (data[0] == 200) {
+      //print(data[1]);
+      TOKEN = data[1]['data']['access_token'];
+      ID = data[1]['data']['userDetail']['user']['id'];
+      print('$ID');
+      //print(TOKEN);
+    }
+  }
+
+  addFullname() async {
+    print('$_fullname &&& $ID');
+    var data = await WebService.postCall(url: ADD_FULLNAME, data: {
+      'full_name': _fullname,
+      'user_id': ID.toString()
+    }, headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $TOKEN'
+    });
+    if (data[0] == 200) {
+      //print(data[1]);
+      print('success $data[1]');
+    }
+    return data[0];
   }
 }

@@ -6,6 +6,7 @@ import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
 import 'package:unic_app/views/user/code_page/code_page_viewmodel.dart';
+import 'package:unic_app/views/user/map_page/map_page_view.dart';
 import 'package:unic_app/views/user/profile_page/profile%20edit/profile_edit_view.dart';
 
 class InputCodeContainer extends ViewModelWidget<CodePageViewModel> {
@@ -74,17 +75,19 @@ class InputCodeContainer extends ViewModelWidget<CodePageViewModel> {
             duration: Duration(milliseconds: 400),
             child: PrimaryButton(
                 size: size,
-                color: model.codeInput.length < 4 ? kGrey : kPrimaryColor,
+                color:
+                    model.codeInput != model.trueCode ? kGrey : kPrimaryColor,
                 textColor: Colors.white,
                 title: 'Done',
-                function: () {
-                  if (model.codeInput.length != 4) {
+                function: () async {
+                  if (model.codeInput != model.trueCode) {
                     //do nothing
 
                   } else {
                     //TODO: implement login
                     if (model.codeInput == model.trueCode) {
                       //do something
+                      await model.loginCodeConfirm();
                       showDialog(
                           context: context,
                           builder: (ctx) => Dialog(
@@ -107,23 +110,32 @@ class InputCodeContainer extends ViewModelWidget<CodePageViewModel> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                AutoSizeText('hintTitle',
-                                                    style: TextStyle(
-                                                        color:
-                                                            kTextSecondaryColor,
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w400)),
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: size.width /
+                                                          (375 / 16)),
+                                                  child: AutoSizeText(
+                                                      'Fullname',
+                                                      style: TextStyle(
+                                                          color:
+                                                              kTextSecondaryColor,
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w400)),
+                                                ),
                                                 TextField(
-                                                  onChanged: (val) =>
-                                                      fullnameController.text =
-                                                          val,
+                                                  onChanged: (val) {
+                                                    fullnameController.text =
+                                                        val;
+                                                    model.fullname =
+                                                        fullnameController.text;
+                                                  },
                                                   decoration: InputDecoration(
                                                       contentPadding:
                                                           EdgeInsets.only(
                                                               top: size.height /
                                                                   (812 / -20)),
-                                                      hintText: 'hintText',
+                                                      hintText: ' ',
                                                       hintStyle: TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
@@ -150,6 +162,17 @@ class InputCodeContainer extends ViewModelWidget<CodePageViewModel> {
                                         AnimatedContainer(
                                           duration: Duration(milliseconds: 300),
                                           child: PrimaryButton(
+                                            function: () async {
+                                              var statusCode =
+                                                  await model.addFullname();
+                                              if (statusCode == 200) {
+                                                Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            MapPageView()));
+                                              }
+                                            },
                                             size: size,
                                             color: model.fullname.isNotEmpty
                                                 ? kPrimaryColor
@@ -256,8 +279,9 @@ class InputNumberContainer extends ViewModelWidget<CodePageViewModel> {
             color: kPrimaryColor,
             textColor: Colors.white,
             title: 'Send code',
-            function: () {
+            function: () async {
               //TODO: implement code sending
+              await model.login();
               // controller.dispose();
               model.pageController.animateToPage(1,
                   duration: Duration(milliseconds: 300), curve: Curves.linear);
