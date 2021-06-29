@@ -1,49 +1,73 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/views/contact%20us/contac_us_viewmodel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContactUs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: size.width / (375 / 16),
-            vertical: size.height / (812 / 60)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            BackWithTitle(size: size, title: 'Contact us'),
-            SizedBox(height: size.height / (812 / 32)),
-            ContactUsContainer(
-              size: size,
-              title: 'unikazerbaijan@gmail.com',
-              containerColor: kPrimaryColor,
-              iconAdress: 'assets/Message.svg',
-            ),
-            SizedBox(height: size.height / (812 / 16)),
-            ContactUsContainer(
-              size: size,
-              title: 'Facebook',
-              containerColor: Color(0xff3381F7),
-              iconAdress: 'assets/fb.svg',
-            ),
-            SizedBox(height: size.height / (812 / 16)),
-            ContactUsContainer(
-              size: size,
-              title: 'Instagram',
-              containerColor: Color(0xffC53C75),
-              iconAdress: 'assets/instagram.svg',
-            ),
-          ],
-        ),
-      ),
-    );
+    return ViewModelBuilder<ContactUsViewModel>.nonReactive(
+        builder: (context, model, child) => FutureBuilder(
+            future: model.getContactUs,
+            builder: (context, snapshot) {
+              return Scaffold(
+                backgroundColor: Colors.white,
+                body: Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: size.width / (375 / 16),
+                      vertical: size.height / (812 / 60)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      BackWithTitle(size: size, title: 'Contact us'),
+                      SizedBox(height: size.height / (812 / 32)),
+                      GestureDetector(
+                        onTap: () {
+                          _launchURL('mailto:${model.emailUrl}');
+                        },
+                        child: ContactUsContainer(
+                          size: size,
+                          title: 'unikazerbaijan@gmail.com',
+                          containerColor: kPrimaryColor,
+                          iconAdress: 'assets/Message.svg',
+                        ),
+                      ),
+                      SizedBox(height: size.height / (812 / 16)),
+                      GestureDetector(
+                        onTap: () {
+                          _launchURL('${model.fbUrl}');
+                        },
+                        child: ContactUsContainer(
+                          size: size,
+                          title: 'Facebook',
+                          containerColor: Color(0xff3381F7),
+                          iconAdress: 'assets/fb.svg',
+                        ),
+                      ),
+                      SizedBox(height: size.height / (812 / 16)),
+                      GestureDetector(
+                        onTap: () {
+                          _launchURL('${model.instaUrl}');
+                        },
+                        child: ContactUsContainer(
+                          size: size,
+                          title: 'Instagram',
+                          containerColor: Color(0xffC53C75),
+                          iconAdress: 'assets/instagram.svg',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+        viewModelBuilder: () => ContactUsViewModel());
   }
 }
 
@@ -104,3 +128,6 @@ class ContactUsContainer extends StatelessWidget {
     );
   }
 }
+
+void _launchURL(url) async =>
+    await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';

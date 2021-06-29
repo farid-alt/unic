@@ -22,6 +22,7 @@ class CodePageView extends StatelessWidget {
         builder: (context, CodePageViewModel model, child) {
           return Scaffold(
             backgroundColor: kPrimaryColor,
+            resizeToAvoidBottomInset: true,
             body: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,

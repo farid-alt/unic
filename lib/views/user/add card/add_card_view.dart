@@ -100,7 +100,7 @@ class _AddCardViewState extends State<AddCardView> {
                 SizedBox(
                   width: size.width / (375 / 165),
                   child: TextField(
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.datetime,
                     onChanged: (_) => setState(() {}),
                     controller: _expiryDate,
                     decoration: InputDecoration(
@@ -125,7 +125,7 @@ class _AddCardViewState extends State<AddCardView> {
                 SizedBox(
                   width: size.width / (375 / 165),
                   child: TextField(
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.phone,
                     onChanged: (_) => setState(() {}),
                     controller: _secureCode,
                     decoration: InputDecoration(
@@ -152,21 +152,31 @@ class _AddCardViewState extends State<AddCardView> {
             ),
             Expanded(child: SizedBox(height: 1)),
             GestureDetector(
-              onTap: () {
+              onTap: () async {
                 //TODO: add card
                 var year = _expiryDate.text.substring(3);
                 var month = _expiryDate.text.substring(0, 2);
-                widget.model.newCard({
-                  'card': PaymentMethod(
-                      cardCcv: _secureCode.text,
+                if (_cardNumber.text.isNotEmpty &&
+                    _secureCode.text.isNotEmpty) {
+                  await widget.model.addCardApi(
                       cardNumber: _cardNumber.text,
-                      expDate: DateTime(int.parse('20$year'), int.parse(month)),
-                      type: _cardNumber.text[0] == 5.toString()
-                          ? PaymentType.MasterCard
-                          : PaymentType.Visa),
-                  'isChoosen': false
-                });
-                Navigator.pop(context);
+                      ccv: _secureCode.text,
+                      expDate: DateTime(int.parse('20$year'), int.parse(month))
+                          .toString());
+                  widget.model.newCard({
+                    'card': PaymentMethod(
+                        cardCcv: _secureCode.text,
+                        cardNumber: _cardNumber.text,
+                        expDate:
+                            DateTime(int.parse('20$year'), int.parse(month)),
+                        type: _cardNumber.text[0] == 5.toString()
+                            ? PaymentType.MasterCard
+                            : PaymentType.Visa),
+                    'isChoosen': false
+                  });
+                  Navigator.pop(context);
+                }
+
                 // Navigator.push(
                 //     context,
                 //     MaterialPageRoute(

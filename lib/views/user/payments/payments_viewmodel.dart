@@ -1,5 +1,7 @@
 import 'package:stacked/stacked.dart';
+import 'package:unic_app/endpoints.dart';
 import 'package:unic_app/models/user/payment_method.dart';
+import 'package:unic_app/services/web_services.dart';
 
 enum PaymentType { MasterCard, Visa, Cash }
 
@@ -56,5 +58,23 @@ class PaymentsViewModel extends BaseViewModel {
   set paymentType(PaymentType p) {
     _paymentType = p;
     notifyListeners();
+  }
+
+  addCardApi({String cardNumber, String expDate, String ccv}) async {
+    print('my id: $ID');
+    var data = await WebService.postCall(url: ADD_CREDIT_CARD, data: {
+      'id': ID.toString(),
+      'card_number': cardNumber,
+      'expire_date': expDate,
+      'secure_code': ccv
+    }, headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $TOKEN'
+    });
+    if (data[0] == 200) {
+      //print(data[1]);
+      print('success $data[1]');
+    }
+    return data[0];
   }
 }

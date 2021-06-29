@@ -61,7 +61,7 @@ class CodePageViewModel extends ChangeNotifier {
     if (data[0] == 200) {
       //print(data[1]);
       TOKEN = data[1]['data']['access_token'];
-      ID = data[1]['data']['userDetail']['user']['id'];
+      ID = data[1]['data']['userDetail']['id'];
       print('$ID');
       //print(TOKEN);
     }
