@@ -7,6 +7,11 @@ enum PaymentType { MasterCard, Visa, Cash }
 
 class PaymentsViewModel extends BaseViewModel {
   PaymentType _paymentType = PaymentType.MasterCard;
+  Future getCreditCards;
+
+  PaymentsViewModel() {
+    getCreditCards = getCreditCardsApi();
+  }
 
   void justNotify() => notifyListeners;
 
@@ -17,30 +22,30 @@ class PaymentsViewModel extends BaseViewModel {
   }
 
   List<Map<String, dynamic>> _payments = [
-    {
-      'card': PaymentMethod(
-          cardCcv: '123',
-          cardNumber: '12345678',
-          expDate: DateTime.now(),
-          type: PaymentType.MasterCard),
-      'isChoosen': true,
-    },
-    {
-      'card': PaymentMethod(
-          cardCcv: '122',
-          cardNumber: '1234567890123456',
-          expDate: DateTime.now(),
-          type: PaymentType.Visa),
-      'isChoosen': false,
-    },
-    {
-      'card': PaymentMethod(
-          cardCcv: '122',
-          cardNumber: '*************',
-          expDate: DateTime.now(),
-          type: PaymentType.Cash),
-      'isChoosen': false,
-    }
+    // {
+    //   'card': PaymentMethod(
+    //       cardCcv: '123',
+    //       cardNumber: '12345678',
+    //       expDate: DateTime.now(),
+    //       type: PaymentType.MasterCard),
+    //   'isChoosen': true,
+    // },
+    // {
+    //   'card': PaymentMethod(
+    //       cardCcv: '122',
+    //       cardNumber: '1234567890123456',
+    //       expDate: DateTime.now(),
+    //       type: PaymentType.Visa),
+    //   'isChoosen': false,
+    // },
+    // {
+    //   'card': PaymentMethod(
+    //       cardCcv: '122',
+    //       cardNumber: '*************',
+    //       expDate: DateTime.now(),
+    //       type: PaymentType.Cash),
+    //   'isChoosen': false,
+    // }
   ];
 
   get payments => _payments;
@@ -76,5 +81,28 @@ class PaymentsViewModel extends BaseViewModel {
       print('success $data[1]');
     }
     return data[0];
+  }
+
+  getCreditCardsApi() async {
+    var data = await WebService.getCall(
+        url: 'http://unik.neostep.az/api/customer/credit-cards?id=$ID',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $TOKEN'
+        });
+    if (data[0] == 200) {
+      _payments = data[1]['data']
+          .map<Map<String, dynamic>>((val) => {
+                'card': PaymentMethod(
+                    cardCcv: val['secure_code'],
+                    cardNumber: val['card_number'],
+                    expDate: DateTime.parse(val['expire_date']),
+                    type: val['card_number'][0] == 5
+                        ? PaymentType.MasterCard
+                        : PaymentType.Visa),
+                'isChoosen': false,
+              })
+          .toList();
+    }
   }
 }

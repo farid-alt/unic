@@ -24,48 +24,53 @@ class PaymentsView extends StatelessWidget {
             left: size.width / (375 / 16),
             right: size.width / (375 / 16),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              BackWithTitle(size: size, title: 'Payments'),
-              SizedBox(height: size.height / (812 / 55)),
-              for (int i = 0; i < model.payments.length; i++)
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PaymentMethodRow(size: size, index: i),
-                      SizedBox(height: size.height / (812 / 28))
-                    ]),
-              Expanded(child: SizedBox(height: 1)),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddCardView(model: model)));
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: size.height / (812 / 60),
-                  child: Center(
-                    child: AutoSizeText(
-                      'Add card',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400),
+          child: FutureBuilder(
+              future: model.getCreditCards,
+              builder: (context, snapshot) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BackWithTitle(size: size, title: 'Payments'),
+                    SizedBox(height: size.height / (812 / 55)),
+                    for (int i = 0; i < model.payments.length; i++)
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PaymentMethodRow(size: size, index: i),
+                            SizedBox(height: size.height / (812 / 28))
+                          ]),
+                    Expanded(child: SizedBox(height: 1)),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    AddCardView(model: model)));
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: size.height / (812 / 60),
+                        child: Center(
+                          child: AutoSizeText(
+                            'Add card',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        ),
+                        decoration: BoxDecoration(
+                            color: kPrimaryColor,
+                            borderRadius: BorderRadius.circular(14)),
+                      ),
                     ),
-                  ),
-                  decoration: BoxDecoration(
-                      color: kPrimaryColor,
-                      borderRadius: BorderRadius.circular(14)),
-                ),
-              ),
-              SizedBox(height: size.height / (812 / 10)),
-            ],
-          ),
+                    SizedBox(height: size.height / (812 / 10)),
+                  ],
+                );
+              }),
         ),
       ),
       viewModelBuilder: () => PaymentsViewModel(),

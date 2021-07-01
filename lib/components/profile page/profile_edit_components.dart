@@ -38,8 +38,7 @@ class EditTextField extends StatelessWidget {
               TextField(
                 onChanged: (val) => controller.text = val,
                 decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.only(top: size.height / (812 / -20)),
+                    contentPadding: EdgeInsets.only(top: -20),
                     hintText: '$hintText',
                     hintStyle: TextStyle(
                         fontSize: 14,

@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:unic_app/models/user/driver.dart';
 import 'package:unic_app/models/user/ride.dart';
 import 'package:unic_app/models/user/user.dart';
+import 'package:unic_app/services/web_services.dart';
+
+import '../../../endpoints.dart';
 
 class RideHistoryViewModel extends ChangeNotifier {
+  Future getRidehistory;
+  RideHistoryViewModel() {
+    getRidehistory = _getRideHistoryApi();
+  }
   List<Ride> _rides = [
     Ride(
       rideId: 66,
@@ -164,4 +171,36 @@ class RideHistoryViewModel extends ChangeNotifier {
   ];
 
   get rides => _rides;
+
+  _getRideHistoryApi() async {
+    var data = await WebService.getCall(
+        url: 'http://unik.neostep.az/api/customer/ride-histories?id=$ID',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $TOKEN'
+        });
+    if (data[0] == 200) {
+      print(data);
+      // _rides = data[1]['data']
+      //     .map<Ride>(
+      //       (val) =>
+      //           Ride(
+      //            rideId: data[1]['data']['id'],
+      //             rideDate: data[1]['data']['date'],
+      //             startAdress: data[1]['data']['destinations'][0],
+      //             endAdress: data[1]['data']['destinations'][1],
+      //             customer: User(
+      //               id:
+      //             )
+      //           ),
+      //     )
+      //     .toList();
+      // _faqs = data[1]['data']
+      //     .map<FaqWidgetModel>(
+      //       (val) =>
+      //           FaqWidgetModel(content: val['content'], title: val['title']),
+      //     )
+      //     .toList();
+    }
+  }
 }

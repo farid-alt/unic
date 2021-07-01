@@ -4,6 +4,8 @@ class User {
   String profilePicAdress = ' ';
   String fullname;
   String email;
+  String homeAdress;
+  String workAdress;
   String phone;
   int id;
 
@@ -11,6 +13,8 @@ class User {
       {this.name,
       this.id,
       this.surname,
+      this.homeAdress,
+      this.workAdress,
       this.profilePicAdress = ' ',
       this.email,
       this.phone})

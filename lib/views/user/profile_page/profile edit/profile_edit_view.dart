@@ -34,70 +34,67 @@ class UserProfileEditPageView extends StatelessWidget {
               backgroundColor: kPrimaryColor,
               body: Stack(
                 children: [
-                  SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Flexible(
-                            flex: 1,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Flexible(
+                          flex: 1,
+                          child: Column(
+                            children: [
+                              Padding(
+                                  padding: EdgeInsets.only(
+                                      left: size.width / (375 / 16),
+                                      right: size.width / (375 / 16),
+                                      bottom: size.height / (812 / 66),
+                                      top: size.height / (812 / 60)),
+                                  child: TopCancelSaveRow(
+                                    onTap: () {
+                                      if (_fullnameController.text.isNotEmpty) {
+                                        model.userFullName =
+                                            _fullnameController.text;
+                                      }
+                                      if (_emailController.text.isNotEmpty) {
+                                        model.user.email =
+                                            _emailController.text;
+                                        //print(model.user.email);
+                                      }
+                                    },
+                                  )),
+                            ],
+                          )),
+                      Flexible(
+                          flex: 3,
+                          child: Container(
+                            //height: 300
                             child: Column(
                               children: [
-                                Padding(
-                                    padding: EdgeInsets.only(
-                                        left: size.width / (375 / 16),
-                                        right: size.width / (375 / 16),
-                                        bottom: size.height / (812 / 66),
-                                        top: size.height / (812 / 60)),
-                                    child: TopCancelSaveRow(
-                                      onTap: () {
-                                        if (_fullnameController
-                                            .text.isNotEmpty) {
-                                          model.userFullName =
-                                              _fullnameController.text;
-                                        }
-                                        if (_emailController.text.isNotEmpty) {
-                                          model.user.email =
-                                              _emailController.text;
-                                          //print(model.user.email);
-                                        }
-                                      },
-                                    )),
+                                SizedBox(height: size.height / (812 / 140)),
+                                EditTextField(
+                                    controller: _fullnameController,
+                                    size: size,
+                                    hintTitle: 'Fullname',
+                                    hintText: model.user.fullname),
+                                SizedBox(height: size.height / (812 / 24)),
+                                EditTextField(
+                                    controller: _emailController,
+                                    size: size,
+                                    hintTitle: 'E-mail',
+                                    hintText: model.user.email),
+                                SizedBox(height: size.height / (812 / 24)),
+                                EditTextField(
+                                    //controller: _phoneController,
+                                    isNumber: true,
+                                    size: size,
+                                    hintTitle: 'Phone',
+                                    hintText: model.user.phone),
                               ],
-                            )),
-                        Flexible(
-                            flex: 3,
-                            child: Container(
-                              //height: 300
-                              child: Column(
-                                children: [
-                                  SizedBox(height: size.height / (812 / 120)),
-                                  EditTextField(
-                                      controller: _fullnameController,
-                                      size: size,
-                                      hintTitle: 'Fullname',
-                                      hintText: model.user.fullname),
-                                  SizedBox(height: size.height / (812 / 24)),
-                                  EditTextField(
-                                      controller: _emailController,
-                                      size: size,
-                                      hintTitle: 'E-mail',
-                                      hintText: model.user.email),
-                                  SizedBox(height: size.height / (812 / 24)),
-                                  EditTextField(
-                                      //controller: _phoneController,
-                                      isNumber: true,
-                                      size: size,
-                                      hintTitle: 'Phone',
-                                      hintText: model.user.phone),
-                                ],
-                              ),
-                              width: double.infinity,
-                              color: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: size.width / (375 / 16)),
-                            ))
-                      ],
-                    ),
+                            ),
+                            width: double.infinity,
+                            color: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: size.width / (375 / 16)),
+                          ))
+                    ],
                   ),
                   Positioned(
                       top: size.height / (812 / 146),

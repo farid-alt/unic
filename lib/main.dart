@@ -8,8 +8,11 @@ import 'package:unic_app/views/driver/driver_profile_viewmodel.dart';
 import 'package:unic_app/views/driver_map/driver_map_view.dart';
 import 'package:unic_app/views/driver_map/driver_map_viewmodel.dart';
 import 'package:unic_app/views/onboarding/onboarding_view.dart';
+import 'package:unic_app/views/user/get_rides/get_rides_view.dart';
 import 'package:unic_app/views/user/main_wrapper/main_wrapper_view.dart';
 import 'package:unic_app/views/user/map_page/map_page_view.dart';
+import 'package:unic_app/views/user/payments/payments_view.dart';
+import 'package:unic_app/views/user/profile_page/profile_page_view.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_view.dart';
 
 import 'package:unic_app/views/user/support/support_view.dart';
@@ -31,7 +34,8 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Inter',
       ),
       // home: OnboardingView(),
-      home: CodePageView(),
+      //  home: CodePageView(),
+      home: RideHistoryView(),
       //home: UserProfileEditPageView(),
     );
   }

@@ -15,33 +15,37 @@ class RideHistoryView extends StatelessWidget {
         backgroundColor: Colors.white,
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: size.width / (375 / 16)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: size.height / (812 / 60)),
-              BackWithTitle(
-                size: size,
-                title: 'Ride history',
-              ),
-              SizedBox(height: size.height / (812 / 12)),
-              Expanded(
-                child: ListView.separated(
-                    itemBuilder: (context, index) => RideHistoryContainer(
-                        index: index,
-                        size: size,
-                        endAdress: '${model.rides[index].endAdress}',
-                        startAdress: '${model.rides[index].startAdress}',
-                        rideDate:
-                            '${DateFormat('dd.MM.yyyy').format(model.rides[index].rideDate)}',
-                        ridePrice: model.rides[index].ridePrice,
-                        rideRating: model.rides[index].rideRating),
-                    separatorBuilder: (context, _) => SizedBox(
-                          height: size.height / (812 / 12),
-                        ),
-                    itemCount: model.rides.length),
-              )
-            ],
-          ),
+          child: FutureBuilder(
+              future: model.getRidehistory,
+              builder: (context, snapshot) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(height: size.height / (812 / 60)),
+                    BackWithTitle(
+                      size: size,
+                      title: 'Ride history',
+                    ),
+                    SizedBox(height: size.height / (812 / 12)),
+                    Expanded(
+                      child: ListView.separated(
+                          itemBuilder: (context, index) => RideHistoryContainer(
+                              index: index,
+                              size: size,
+                              endAdress: '${model.rides[index].endAdress}',
+                              startAdress: '${model.rides[index].startAdress}',
+                              rideDate:
+                                  '${DateFormat('dd.MM.yyyy').format(model.rides[index].rideDate)}',
+                              ridePrice: model.rides[index].ridePrice,
+                              rideRating: model.rides[index].rideRating),
+                          separatorBuilder: (context, _) => SizedBox(
+                                height: size.height / (812 / 12),
+                              ),
+                          itemCount: model.rides.length),
+                    )
+                  ],
+                );
+              }),
         ),
       ),
       viewModelBuilder: () => RideHistoryViewModel(),
