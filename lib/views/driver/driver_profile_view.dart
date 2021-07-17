@@ -23,129 +23,144 @@ class _DriverProfileViewState extends State<DriverProfileView> {
     final size = MediaQuery.of(context).size;
 
     return ViewModelBuilder<DriverProfileViewModel>.reactive(
-        builder: (context, DriverProfileViewModel model, child) => Scaffold(
-              backgroundColor: Colors.white,
-              body: SafeArea(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Stack(
-                        overflow: Overflow.visible,
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            height: size.height / (815 / 500),
-                            child: Column(
+        builder: (context, DriverProfileViewModel model, child) =>
+            FutureBuilder(
+                future: model.driverProfileFuture,
+                builder: (context, snapshot) {
+                  return Scaffold(
+                    backgroundColor: Colors.white,
+                    body: SafeArea(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Stack(
+                              overflow: Overflow.visible,
                               children: [
                                 Container(
-                                  color: kPrimaryColor,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        left: size.width / (375 / 16),
-                                        right: size.width / (375 / 16),
-                                        top: size.height / (812 / 40),
-                                        bottom: size.height / (812 / 150)),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        ArrowBackBtnCenterTextAndSave(
-                                            text: 'My profile'),
-                                      ],
-                                    ),
+                                  color: Colors.white,
+                                  height: size.height / (815 / 500),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        color: kPrimaryColor,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              left: size.width / (375 / 16),
+                                              right: size.width / (375 / 16),
+                                              top: size.height / (812 / 40),
+                                              bottom:
+                                                  size.height / (812 / 150)),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              ArrowBackBtnCenterTextAndSave(
+                                                  text: 'My profile'),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
+                                PositionedWithCircleAvatarDriver(size: size),
                               ],
                             ),
-                          ),
-                          PositionedWithCircleAvatarDriver(size: size),
-                        ],
-                      ),
-                      Container(
-                        color: Colors.white,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: size.width / (375 / 16)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AutoSizeText(
-                                    'Full name',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: kTextPrimary),
-                                  ),
-                                  SizedBox(
-                                    height: size.height / (815 / 10),
-                                  ),
-                                  EditTextFieldDriver(
-                                      size: size, hintTitle: '', hintText: ''),
-                                ],
+                            Container(
+                              color: Colors.white,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: size.width / (375 / 16)),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AutoSizeText(
+                                          'Full name',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: kTextPrimary),
+                                        ),
+                                        SizedBox(
+                                          height: size.height / (815 / 10),
+                                        ),
+                                        EditTextFieldDriver(
+                                            size: size,
+                                            hintTitle: '',
+                                            hintText: ''),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: size.height / (815 / 15),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AutoSizeText(
+                                          'E-mail',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: kTextPrimary),
+                                        ),
+                                        SizedBox(
+                                          height: size.height / (815 / 10),
+                                        ),
+                                        EditTextFieldDriver(
+                                            size: size,
+                                            hintTitle: '',
+                                            hintText: ''),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: size.height / (815 / 15),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        AutoSizeText(
+                                          'Phone number',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: kTextPrimary),
+                                        ),
+                                        SizedBox(
+                                          height: size.height / (815 / 10),
+                                        ),
+                                        EditTextFieldDriver(
+                                            size: size,
+                                            hintTitle: '',
+                                            hintText: ''),
+                                      ],
+                                    ),
+                                    SizedBox(height: size.height / (815 / 30)),
+                                    Divider(
+                                      thickness: 0.7,
+                                      height: 1,
+                                      color: Color(0xffEBEDEE),
+                                    ),
+                                    SizedBox(height: size.height / (815 / 32)),
+                                    boldTextBuilder('Language'),
+                                    SizedBox(height: size.height / (812 / 16)),
+                                    LanguageRow(language: '${model.language}'),
+                                    SizedBox(height: size.height / (815 / 100)),
+                                  ],
+                                ),
                               ),
-                              SizedBox(
-                                height: size.height / (815 / 15),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AutoSizeText(
-                                    'E-mail',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: kTextPrimary),
-                                  ),
-                                  SizedBox(
-                                    height: size.height / (815 / 10),
-                                  ),
-                                  EditTextFieldDriver(
-                                      size: size, hintTitle: '', hintText: ''),
-                                ],
-                              ),
-                              SizedBox(
-                                height: size.height / (815 / 15),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AutoSizeText(
-                                    'Phone number',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: kTextPrimary),
-                                  ),
-                                  SizedBox(
-                                    height: size.height / (815 / 10),
-                                  ),
-                                  EditTextFieldDriver(
-                                      size: size, hintTitle: '', hintText: ''),
-                                ],
-                              ),
-                              SizedBox(height: size.height / (815 / 30)),
-                              Divider(
-                                thickness: 0.7,
-                                height: 1,
-                                color: Color(0xffEBEDEE),
-                              ),
-                              SizedBox(height: size.height / (815 / 32)),
-                              boldTextBuilder('Language'),
-                              SizedBox(height: size.height / (812 / 16)),
-                              LanguageRow(language: '${model.language}'),
-                              SizedBox(height: size.height / (815 / 100)),
-                            ],
-                          ),
+                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                      ),
+                    ),
+                  );
+                }),
         viewModelBuilder: () => DriverProfileViewModel());
   }
 

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/ride%20history/ride_container.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_viewmodel.dart';
 // import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
-class RideHistoryView extends StatelessWidget {
+class RideHistoryView extends KFDrawerContent {
+  @override
+  _RideHistoryViewState createState() => _RideHistoryViewState();
+}
+
+class _RideHistoryViewState extends State<RideHistoryView> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

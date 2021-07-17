@@ -90,6 +90,7 @@ class PaymentsViewModel extends BaseViewModel {
           'Accept': 'application/json',
           'Authorization': 'Bearer $TOKEN'
         });
+    print(data);
     if (data[0] == 200) {
       _payments = data[1]['data']
           .map<Map<String, dynamic>>((val) => {

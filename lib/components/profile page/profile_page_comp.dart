@@ -25,13 +25,13 @@ class PositionedWithCircleAvatar
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: size.width / (375 / 56),
-              foregroundImage: model.user.profilePicAdress != null
-                  ? NetworkImage('${model.user.profilePicAdress}')
-                  : NetworkImage(
-                      'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'),
-            ),
+            // CircleAvatar(
+            //   radius: size.width / (375 / 56),
+            //   foregroundImage: model.user.profilePicAdress != null
+            //       ? NetworkImage('${model.user.profilePicAdress}')
+            //       : NetworkImage(
+            //           'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'),
+            // ),
             SizedBox(height: size.height / (812 / 10)),
             AutoSizeText('${model.user.name} ${model.user.surname}',
                 textAlign: TextAlign.center,

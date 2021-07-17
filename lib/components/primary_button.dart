@@ -20,10 +20,14 @@ class PrimaryButton extends StatelessWidget {
         ),
         width: size.width,
         height: 60,
-        child: Center(
-          child: AutoSizeText(
-            '$title',
-            style: TextStyle(fontSize: 20, color: textColor),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: AutoSizeText(
+              '$title',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20, color: textColor),
+            ),
           ),
         ),
         decoration: BoxDecoration(

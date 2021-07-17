@@ -3,13 +3,19 @@ import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/views/user/payments/payments_viewmodel.dart';
 import '/views/user/add card/add_card_view.dart';
 
-class PaymentsView extends StatelessWidget {
+class PaymentsView extends KFDrawerContent {
+  @override
+  _PaymentsViewState createState() => _PaymentsViewState();
+}
+
+class _PaymentsViewState extends State<PaymentsView> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

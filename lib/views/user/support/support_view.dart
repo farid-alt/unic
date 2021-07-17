@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
@@ -11,7 +12,12 @@ import 'package:unic_app/views/user/faq/faq_view.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_viewmodel.dart';
 import 'package:unic_app/views/user/support/support_viewmodel.dart';
 
-class SupportView extends StatelessWidget {
+class SupportView extends KFDrawerContent {
+  @override
+  _SupportViewState createState() => _SupportViewState();
+}
+
+class _SupportViewState extends State<SupportView> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

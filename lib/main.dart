@@ -2,6 +2,8 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:unic_app/endpoints.dart';
 
 import 'package:unic_app/views/driver/driver_profile_view.dart';
 import 'package:unic_app/views/driver/driver_profile_viewmodel.dart';
@@ -29,14 +31,37 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Inter',
-      ),
-      // home: OnboardingView(),
-      //  home: CodePageView(),
-      home: RideHistoryView(),
-      //home: UserProfileEditPageView(),
-    );
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: 'Inter',
+        ),
+        // home: OnboardingView(),
+        //  home: CodePageView(),
+        home: CheckClass()
+        //home: UserProfileEditPageView(),
+        );
+  }
+}
+
+class CheckClass extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // return MainWrapperView();
+    return FutureBuilder<SharedPreferences>(
+        future: SharedPreferences.getInstance(),
+        builder: (context, snapshot) {
+          // if (snapshot.data.containsKey('id')) {
+          //   ID = snapshot.data.getString('id');
+          // }
+          print('here1');
+          // snapshot.data.clear();
+          if (snapshot.data.containsKey('token')) {
+            TOKEN = snapshot.data.getString('token');
+            print('here2');
+            return MainWrapperView();
+          } else {
+            return OnboardingView();
+          }
+        });
   }
 }

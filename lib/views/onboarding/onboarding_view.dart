@@ -6,6 +6,7 @@ import 'package:unic_app/components/intro/upper_part.dart';
 import 'package:unic_app/components/primary_button.dart';
 import 'package:unic_app/views/onboarding/onboarding_viewmodel.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:unic_app/views/user/code_page/code_page_view.dart';
 
 class OnboardingView extends StatelessWidget {
   @override
@@ -89,6 +90,11 @@ class OnboardingView extends StatelessWidget {
                               model.pageController.animateToPage(1,
                                   duration: Duration(milliseconds: 300),
                                   curve: Curves.linear);
+                            } else {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CodePageView()));
                             }
                           },
                           color: kPrimaryColor,

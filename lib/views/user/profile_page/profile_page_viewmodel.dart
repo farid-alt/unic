@@ -42,6 +42,8 @@ class UserProfilePageViewModel extends ChangeNotifier {
       'Accept': 'application/json',
       'Authorization': 'Bearer $TOKEN'
     });
+    print(data);
+
     if (data[0] == 200) {
       print(data);
       _user = User(

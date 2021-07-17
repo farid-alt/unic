@@ -1,15 +1,22 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/promotions/promotion_related.dart';
 import 'package:unic_app/models/user/promotion.dart';
+import 'package:unic_app/views/user/enter%20promo/enter_promo_view.dart';
 import 'package:unic_app/views/user/get_rides/get_rides_view.dart';
 import 'package:unic_app/views/user/promotions_page/promotions_viewmodel.dart';
 
-class PromotionsView extends StatelessWidget {
+class PromotionsView extends KFDrawerContent {
+  @override
+  _PromotionsViewState createState() => _PromotionsViewState();
+}
+
+class _PromotionsViewState extends State<PromotionsView> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -49,10 +56,18 @@ class PromotionsView extends StatelessWidget {
                         width: double.infinity,
                       ),
                       SizedBox(height: size.height / (375 / 16)),
-                      PromotionPageRows(
-                        size: size,
-                        title: 'Enter promo code',
-                        iconAdress: 'assets/promotions/Discount.svg',
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => EnterPromoView()));
+                        },
+                        child: PromotionPageRows(
+                          size: size,
+                          title: 'Enter promo code',
+                          iconAdress: 'assets/promotions/Discount.svg',
+                        ),
                       ),
                       SizedBox(height: size.height / (375 / 24)),
                       Center(

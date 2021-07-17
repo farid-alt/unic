@@ -1,11 +1,17 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/views/user/terms%20and%20conditions/terms_viewmodel.dart';
 
-class TermsPage extends StatelessWidget {
+class TermsPage extends KFDrawerContent {
+  @override
+  _TermsPageState createState() => _TermsPageState();
+}
+
+class _TermsPageState extends State<TermsPage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

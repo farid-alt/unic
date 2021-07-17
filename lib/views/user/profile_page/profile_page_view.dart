@@ -6,6 +6,7 @@ import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/arrow_back_button.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/profile%20page/profile_page_comp.dart';
+import 'package:unic_app/views/user/choose_adress_map/choose_adress_map_view.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_viewmodel.dart';
 
 class UserProfilePageView extends KFDrawerContent {
@@ -54,13 +55,19 @@ class _UserProfilePageViewState extends State<UserProfilePageView> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SizedBox(height: size.height / (812 / 32)),
-
                                     boldTextBuilder('Saved destinations'),
-                                    SavedDestinationsRow(
-                                        size: size,
-                                        iconAdress:
-                                            'assets/user_profile/icons/houseIcon.svg',
-                                        title: 'Home'),
+                                    GestureDetector(
+                                      onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  TakeAdress())),
+                                      child: SavedDestinationsRow(
+                                          size: size,
+                                          iconAdress:
+                                              'assets/user_profile/icons/houseIcon.svg',
+                                          title: 'Home'),
+                                    ),
                                     Divider(thickness: 0.7),
                                     SavedDestinationsRow(
                                         size: size,

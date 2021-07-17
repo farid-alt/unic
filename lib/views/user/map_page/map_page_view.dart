@@ -13,6 +13,7 @@ import 'package:location/location.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
+import 'package:unic_app/endpoints.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
 import 'package:unic_app/views/user/payments_choose_for_trip/payments_view.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_viewmodel.dart';
@@ -1171,7 +1172,8 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                     color: kPrimaryColor,
                     textColor: Colors.white,
                     function: () {
-                      model.status = StatusOfMap.SearchingDriver;
+                      // model.status = StatusOfMap.SearchingDriver;
+                      model.createOrder(createEditId: 0);
                     },
                   ),
                 ],
@@ -1536,7 +1538,8 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
                         model.status = StatusOfMap.ApplyYourTrip;
                         model.firstAdress = value[1];
                         model.adresses = value[2];
-
+                        print(TOKEN);
+                        model.calculateOrder();
                         print('Done');
                       } catch (e) {
                         print(e);

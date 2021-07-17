@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unic_app/endpoints.dart';
 import 'package:unic_app/services/web_services.dart';
 //import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -61,7 +62,10 @@ class CodePageViewModel extends ChangeNotifier {
     if (data[0] == 200) {
       //print(data[1]);
       TOKEN = data[1]['data']['access_token'];
-      ID = data[1]['data']['userDetail']['id'];
+      // ID = data[1]['data']['userDetail']['id'].toString();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('id', data[1]['data']['userDetail']['id'].toString());
+      prefs.setString('token', data[1]['data']['access_token']);
       print('$ID');
       //print(TOKEN);
     }

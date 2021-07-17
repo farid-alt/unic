@@ -6,7 +6,8 @@ import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/drawer/drawerItem.dart';
-import 'package:unic_app/views/driver/driver_mainwrapper/driver_mainwrapper.dart';
+import 'package:unic_app/views/driver/driver_profile_view.dart';
+import 'package:unic_app/views/driver_map/driver_map_view.dart';
 import 'package:unic_app/views/user/main_wrapper/main_wrapper_viewmodel.dart';
 import 'package:unic_app/views/user/map_page/map_page_view.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
@@ -19,14 +20,14 @@ import 'package:unic_app/views/user/ride_history/ride_history_view.dart';
 import 'package:unic_app/views/user/support/support_view.dart';
 import 'package:unic_app/views/user/terms%20and%20conditions/terms_view.dart';
 
-class MainWrapperView extends StatefulWidget {
+class DriverMainWrapperView extends StatefulWidget {
   int index = 0;
-  MainWrapperView({this.index});
+  DriverMainWrapperView({this.index});
   @override
-  _MainWrapperViewState createState() => _MainWrapperViewState();
+  _DriverMainWrapperViewState createState() => _DriverMainWrapperViewState();
 }
 
-class _MainWrapperViewState extends State<MainWrapperView> {
+class _DriverMainWrapperViewState extends State<DriverMainWrapperView> {
   KFDrawerController _drawerController;
   // KFDrawerController get drawerController => _drawerController;
   // set drawerController(controller) {
@@ -49,7 +50,7 @@ class _MainWrapperViewState extends State<MainWrapperView> {
   @override
   void initState() {
     _drawerController = KFDrawerController(
-      initialPage: MapPageView(),
+      initialPage: DriverMapView(),
       items: [
         // KFDrawerItem.initWithPage(
         //   text: AutoSizeText(
@@ -75,13 +76,13 @@ class _MainWrapperViewState extends State<MainWrapperView> {
         //   page: UserProfilePageView(),
         //   onPressed: () {},
         // )
-        buildDrawerItem(
-          title: 'Payments',
-          icon: 'Wallet.svg',
-          page: PaymentsView(),
-          function: () => Navigator.push(
-              context, MaterialPageRoute(builder: (context) => PaymentsView())),
-        ),
+        // buildDrawerItem(
+        //   title: 'Payments',
+        //   icon: 'Wallet.svg',
+        //   page: PaymentsView(),
+        //   function: () => Navigator.push(
+        //       context, MaterialPageRoute(builder: (context) => PaymentsView())),
+        // ),
         buildDrawerItem(
           title: 'Promotions',
           icon: 'Discount.svg',
@@ -155,7 +156,7 @@ class _MainWrapperViewState extends State<MainWrapperView> {
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => UserProfilePageView())),
+                          builder: (context) => DriverProfileView())),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -184,37 +185,31 @@ class _MainWrapperViewState extends State<MainWrapperView> {
           ),
           footer: Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DriverMainWrapperView())),
-              child: Container(
-                width: size.width / (375 / 213),
-                height: size.height / (815 / 60),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(15),
-                    bottomRight: Radius.circular(15),
-                  ),
-                  color: Colors.white,
+            child: Container(
+              width: size.width / (375 / 213),
+              height: size.height / (815 / 60),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(15),
+                  bottomRight: Radius.circular(15),
                 ),
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: size.width / (375 / 16)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      AutoSizeText(
-                        'Become a driver'.toUpperCase(),
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: kTextPrimary),
-                      ),
-                      Icon(Icons.arrow_forward, size: size.width / (375 / 18)),
-                    ],
-                  ),
+                color: Colors.white,
+              ),
+              child: Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: size.width / (375 / 16)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AutoSizeText(
+                      'Become a customer'.toUpperCase(),
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: kTextPrimary),
+                    ),
+                    Icon(Icons.arrow_forward, size: size.width / (375 / 18)),
+                  ],
                 ),
               ),
             ),
