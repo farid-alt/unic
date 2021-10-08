@@ -3,29 +3,36 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/components/map_page/crossText.dart';
 import 'package:unic_app/components/ride%20history/start2end_icon.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/models/user/ride.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/ride_details/ride_details_view.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_viewmodel.dart';
 
 class RideHistoryContainer extends ViewModelWidget<RideHistoryViewModel> {
-  const RideHistoryContainer({
-    Key key,
-    @required this.size,
-    @required this.endAdress,
-    @required this.startAdress,
-    @required this.rideDate,
-    @required this.ridePrice,
-    @required this.rideRating,
-    @required this.index,
-  }) : super(key: key);
+  RideHistoryContainer(
+      {Key key,
+      @required this.size,
+      @required this.endAdress,
+      @required this.startAdress,
+      @required this.rideDate,
+      @required this.ridePrice,
+      @required this.rideRating,
+      this.isDriver = false,
+      // @required this.index,
+      @required this.ride})
+      : super(key: key);
 
   final Size size;
   final String startAdress, endAdress;
   final String rideDate;
   final double rideRating;
-  final double ridePrice;
-  final int index;
-
+  final String ridePrice;
+  // final int index;
+  final Ride ride;
+  bool isDriver;
   @override
   Widget build(BuildContext context, RideHistoryViewModel model) {
     return Container(
@@ -104,13 +111,19 @@ class RideHistoryContainer extends ViewModelWidget<RideHistoryViewModel> {
                   //   direction: Axis.horizontal,
                   // ),
                   SizedBox(height: size.height / (812 / 8)),
-                  AutoSizeText(
-                    '$ridePrice AZN',
-                    style: TextStyle(
-                        color: kTextPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700),
-                  ),
+                  ride.ridePrice == ride.tarrifPrice
+                      ? AutoSizeText(
+                          '$ridePrice AZN',
+                          style: TextStyle(
+                              color: kTextPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700),
+                        )
+                      : NewPriceRow(
+                          promoPrice: ride.ridePrice,
+                          tarifPrice: ride.tarrifPrice,
+                          size: size,
+                        ),
                 ],
               )
             ],
@@ -122,10 +135,12 @@ class RideHistoryContainer extends ViewModelWidget<RideHistoryViewModel> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => RideDetailsView(
-                              index: index,
+                              driver: isDriver,
+                              ride: ride,
                             )));
               },
-              child: buildContainerBtnText(size, 'Ride details'))
+              child: buildContainerBtnText(
+                  size, '${kMenuTranslates['ride_details'][LANGUAGE]}'))
         ],
       ),
       padding: EdgeInsets.symmetric(

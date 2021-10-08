@@ -22,62 +22,66 @@ class PaymentsChooseForTripView extends StatelessWidget {
             left: size.width / (375 / 16),
             right: size.width / (375 / 16),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                children: [
-                  Column(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    // crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () =>
-                            Navigator.pop(context, model.selectedPaymentType),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Icon(Icons.arrow_back_ios,
-                                  color: kPrimaryColor,
-                                  size: size.height / (812 / 24)),
-                              AutoSizeText(
-                                'Back',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: kPrimaryColor),
-                              ),
-                              // SizedBox(width: size.width / (375 / 0)),
-                            ]),
-                      ),
-                      SizedBox(
-                        height: size.height / (815 / 16),
-                      ),
-                      AutoSizeText(
-                        'Select A Payment Method',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: kTextPrimary),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: size.height / (812 / 55)),
-              for (int i = 0; i < model.payments.length; i++)
-                Column(
+          child: FutureBuilder(
+              future: model.getCreditCardsApi(),
+              builder: (context, snapshot) {
+                return Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    PaymentMethodRow(size: size, index: i),
-                    SizedBox(height: size.height / (812 / 28))
+                    Column(
+                      children: [
+                        Column(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () => Navigator.pop(
+                                  context, model.selectedPaymentType),
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Icon(Icons.arrow_back_ios,
+                                        color: kPrimaryColor,
+                                        size: size.height / (812 / 24)),
+                                    AutoSizeText(
+                                      'Back',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: kPrimaryColor),
+                                    ),
+                                    // SizedBox(width: size.width / (375 / 0)),
+                                  ]),
+                            ),
+                            SizedBox(
+                              height: size.height / (815 / 16),
+                            ),
+                            AutoSizeText(
+                              'Select A Payment Method',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: kTextPrimary),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: size.height / (812 / 55)),
+                    for (int i = 0; i < model.payments.length; i++)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          PaymentMethodRow(size: size, index: i),
+                          SizedBox(height: size.height / (812 / 28))
+                        ],
+                      )
                   ],
-                )
-            ],
-          ),
+                );
+              }),
         ),
       ),
       viewModelBuilder: () => PaymentsChooseForTripViewModel(),
@@ -107,17 +111,14 @@ class PaymentMethodRow extends ViewModelWidget<PaymentsChooseForTripViewModel> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              model.payments[index]['card'].type == PaymentType.Cash
-                  ? SvgPicture.asset('assets/Wallet.svg',
-                      height: size.width / (375 / 32),
-                      width: size.width / (375 / 32))
-                  : Image.asset(
-                      model.payments[index]['card'].type ==
-                              PaymentType.MasterCard
-                          ? 'assets/mastercard.png'
-                          : 'assets/visa.png',
-                      height: size.width / (375 / 32),
-                      width: size.width / (375 / 32)),
+              Image.asset(
+                  model.payments[index]['card'].type == PaymentType.MasterCard
+                      ? 'assets/master.png'
+                      : model.payments[index]['card'].type == PaymentType.Visa
+                          ? 'assets/visa.png'
+                          : 'assets/Wallet.png',
+                  height: size.width / (375 / 32),
+                  width: size.width / (375 / 32)),
               SizedBox(width: size.width / (375 / 16)),
               AutoSizeText(
                 model.payments[index]['card'].type == PaymentType.MasterCard

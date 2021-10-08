@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/driver_map/driver_map_view.dart';
 import 'package:unic_app/views/driver_map/driver_map_viewmodel.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
@@ -38,7 +40,7 @@ class DriverYourTripEnded extends StatelessWidget {
                       children: [
                         InkWell(
                           onTap: () {
-                            Navigator.pop(context);
+                            model.status = StatusOfMapDriver.WaitinigForTrip;
                           },
                           child: SvgPicture.asset(
                             'assets/map_page/close_square.svg',
@@ -48,7 +50,7 @@ class DriverYourTripEnded extends StatelessWidget {
                           ),
                         ),
                         AutoSizeText(
-                          'Ride completed!',
+                          '${kOrderTranslates['ride_completed'][LANGUAGE]}',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700),
                         ),
@@ -62,7 +64,7 @@ class DriverYourTripEnded extends StatelessWidget {
                     EndTripCustomerContainer(size: size, model: model),
                     SizedBox(height: size.height / (815 / 51)),
                     AutoSizeText(
-                      'End of trip',
+                      '${kOrderTranslates['end_of_trip'][LANGUAGE]}',
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -71,8 +73,8 @@ class DriverYourTripEnded extends StatelessWidget {
                     SizedBox(height: size.height / (815 / 57)),
                     AutoSizeText(
                       model.paymentType == 'Cash'
-                          ? 'Payment is with cash: '
-                          : 'Payment is with card: ',
+                          ? '${kOrderTranslates['payment_with_cash'][LANGUAGE]}: '
+                          : '${kOrderTranslates['payment_with_card'][LANGUAGE]}: ',
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
@@ -89,10 +91,10 @@ class DriverYourTripEnded extends StatelessWidget {
               PrimaryButton(
                 size: size,
                 color: kPrimaryColor,
-                function: () => Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => DriverMapView())),
+                function: () =>
+                    model.status = StatusOfMapDriver.WaitinigForTrip,
                 textColor: Colors.white,
-                title: 'Done',
+                title: '${kGeneralTranslates['done'][LANGUAGE]}',
               )
             ],
           ),
@@ -237,8 +239,8 @@ class EndTripCustomerContainer extends StatelessWidget {
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
                     radius: size.width / (375 / 30),
-                    backgroundImage:
-                        NetworkImage(model.customer.profilePicAdress),
+                    backgroundImage: NetworkImage(
+                        "https://unikeco.az${model.customer.profilePicAdress}"),
                   ),
                 ),
                 SizedBox(
@@ -249,7 +251,7 @@ class EndTripCustomerContainer extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     AutoSizeText(
-                      'Your trip was with ${model.customer.name}',
+                      '${kOrderTranslates['your_trip_was'][LANGUAGE]} ${model.customer.name}',
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

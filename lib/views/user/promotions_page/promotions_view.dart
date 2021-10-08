@@ -6,7 +6,9 @@ import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/promotions/promotion_related.dart';
+import 'package:unic_app/endpoints.dart';
 import 'package:unic_app/models/user/promotion.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/enter%20promo/enter_promo_view.dart';
 import 'package:unic_app/views/user/get_rides/get_rides_view.dart';
 import 'package:unic_app/views/user/promotions_page/promotions_viewmodel.dart';
@@ -34,7 +36,10 @@ class _PromotionsViewState extends State<PromotionsView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: size.height / (812 / (60 - 28))),
-                      BackWithTitle(size: size),
+                      BackWithTitle(
+                        size: size,
+                        title: '${kMenuTranslates['promotions'][LANGUAGE]}',
+                      ),
                       SizedBox(height: size.height / (812 / 32)),
                       GestureDetector(
                         onTap: () {
@@ -45,7 +50,8 @@ class _PromotionsViewState extends State<PromotionsView> {
                         },
                         child: PromotionPageRows(
                           size: size,
-                          title: 'Get free rides',
+                          title:
+                              '${kMenuTranslates['get_free_rides'][LANGUAGE]}',
                           iconAdress: 'assets/promotions/starredticket.svg',
                         ),
                       ),
@@ -65,18 +71,24 @@ class _PromotionsViewState extends State<PromotionsView> {
                         },
                         child: PromotionPageRows(
                           size: size,
-                          title: 'Enter promo code',
+                          title:
+                              '${kMenuTranslates['enter_promo_code'][LANGUAGE]}',
                           iconAdress: 'assets/promotions/Discount.svg',
                         ),
                       ),
                       SizedBox(height: size.height / (375 / 24)),
-                      Center(
-                        child: AutoSizeText('You have 2 free rides',
-                            style: TextStyle(
-                                color: kTextPrimary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700)),
-                      ),
+                      FutureBuilder(
+                          future: model.profileFuture,
+                          builder: (context, snapshot) {
+                            return Center(
+                              child: AutoSizeText(
+                                  '${kMenuTranslates['you_have1'][LANGUAGE]} ${model.countOfFreeRides ?? 0} ${kMenuTranslates['you_have2'][LANGUAGE]}',
+                                  style: TextStyle(
+                                      color: kTextPrimary,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700)),
+                            );
+                          }),
                       // AutoSizeText('List of promo codes',
                       //     style: TextStyle(
                       //         color: kTextPrimary,

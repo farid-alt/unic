@@ -1,6 +1,6 @@
 class Referal {
   String refCode;
   int userId;
-  double discountAmount;
+  int discountAmount;
   Referal({this.discountAmount, this.refCode, this.userId});
 }

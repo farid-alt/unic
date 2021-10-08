@@ -10,7 +10,7 @@ class Ride {
   DateTime endTime;
   DateTime rideDate;
   double rideRating;
-  double ridePrice;
+  String ridePrice;
   // int driverId;
   // String driverName;
   // String driverSurname;
@@ -18,6 +18,7 @@ class Ride {
   // double driverRating;
   // String driverNumber;
   String paymentMethod;
+  String tarrifPrice;
   int rideId;
   Ride(
       {
@@ -37,5 +38,6 @@ class Ride {
       this.ridePrice,
       this.rideRating,
       this.startAdress,
+      this.tarrifPrice,
       this.startTime});
 }

@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
@@ -7,9 +8,9 @@ import 'package:unic_app/models/user/user.dart';
 import 'package:unic_app/views/user/ride_issues/ride_issues_viewmodel.dart';
 
 class RideIssuesView extends StatelessWidget {
-  final User customer;
-
-  const RideIssuesView({Key key, @required this.customer}) : super(key: key);
+  // final User customer;
+  final String rideId;
+  const RideIssuesView({Key key, @required this.rideId}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -94,8 +95,13 @@ class RideIssuesView extends StatelessWidget {
                                                       if (model
                                                           .choosenIssueDescription
                                                           .isNotEmpty)
-                                                        print(model
-                                                            .choosenIssueDescription);
+                                                        model.sendIssue(rideId);
+                                                      Navigator.pop(context);
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              'Your issue was successfully send');
+                                                      // print(model
+                                                      //     .choosenIssueDescription);
                                                     },
                                                     child: Text('Send'))
                                               ],

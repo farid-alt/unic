@@ -4,6 +4,8 @@ class PaymentMethod {
   PaymentType type;
   String cardNumber;
   String cardCcv;
-  DateTime expDate;
-  PaymentMethod({this.cardCcv, this.cardNumber, this.expDate, this.type});
+  String expDate;
+  String id;
+  PaymentMethod(
+      {this.cardCcv, this.cardNumber, this.expDate, this.type, this.id});
 }

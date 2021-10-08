@@ -33,7 +33,7 @@ class ContactUs extends StatelessWidget {
                         },
                         child: ContactUsContainer(
                           size: size,
-                          title: 'unikazerbaijan@gmail.com',
+                          title: model.emailUrl,
                           containerColor: kPrimaryColor,
                           iconAdress: 'assets/Message.svg',
                         ),

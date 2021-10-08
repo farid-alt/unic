@@ -33,6 +33,14 @@ class SelectAdressViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  SelectAdressViewModel({Adress firstAdress}) {
+    if (firstAdress != null) {
+      _firstAdress = firstAdress;
+      textEditingController1.text = _firstAdress.nameOfPlace;
+      print(firstAdress.nameOfPlace);
+    } else {}
+  }
+
   deleteAdress(index) {
     _adresses.removeAt(index);
     notifyListeners();

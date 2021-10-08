@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
@@ -11,9 +12,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:kf_drawer/kf_drawer.dart';
 import 'package:laravel_echo/laravel_echo.dart';
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unic_app/components/api_keys.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/models/user/user.dart';
 import 'package:web_socket_channel/io.dart';
 import 'dart:ui' as ui;
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -25,16 +28,52 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 // import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+// switch ($status) {
+//             case 0:
+//                 $message = "Sifariş yaradıldı";
+//                 $color = 'light';
+//                 break;
+//             case 1:
+//                 $message = "Sürücü qəbul elədi";
+//                 $color = 'secondary';
+//                 break;
+//             case 2:
+//                 $message = "Sürücü müştərini götürdü";
+//                 $color = 'primary';
+//                 break;
+//             case 3:
+//                 $message = "Sifariş tamamlandı";
+//                 $color = 'success';
+//                 break;
+//             case 10:
+//                 $message = "Sürücü imtina elədi";
+//                 $color = 'warning';
+//                 break;
+//             case 20:
+//                 $message = "Sürücü 20 saniyə keçdi imtina elədi";
+//                 $color = 'warning';
+//                 break;
+//             case 30:
+//                 $message = "Müştəri imtina elədi";
+//                 $color = 'danger';
+//                 break;
+//             default:
+//                 $message = "Naməlum status";
+//                 $color = 'light';
+//         }
 enum StatusOfMap {
   Start,
   ApplyYourTrip,
   SearchingDriver,
   DriverComes,
   YouAreOnWay,
+  TripFinished
 }
 enum Vehicle { Moped, Motorcycle }
 
 class MapPageViewModel extends ChangeNotifier {
+  String orderId;
+  User _user = User();
   StatusOfMap _status = StatusOfMap.Start;
   Uint8List car1;
   Uint8List car2;
@@ -42,7 +81,8 @@ class MapPageViewModel extends ChangeNotifier {
   Location location = new Location();
   GoogleMapController _mapController;
   Vehicle _selectedVehicle = Vehicle.Moped;
-  String _costOfTrip = '5';
+  String _costOfTrip = '';
+  String _costOfTripPromo = '';
   int _timeOfTrip = 10;
   int _distanceOfTrip = 5;
   String _paymentType = 'Cash';
@@ -54,10 +94,15 @@ class MapPageViewModel extends ChangeNotifier {
   PolylinePoints polylinePoints = PolylinePoints();
   double _ratingToTrip = 0;
   int _tipSelectedIndex = 0;
+  Future currentStatusFuture;
+  String comment = '';
   // var channel =
   //     IOWebSocketChannel.connect(Uri.parse('ws://165.227.134.30:6001'));
   // IO.Socket socket = IO.io('ws://165.227.134.30:6001');x
-
+  User get user => this._user;
+  int counter = 0;
+  List _cars = [];
+  @override
   Driver _driver = Driver(
       isMoped: true,
       profilePicAdress:
@@ -69,6 +114,7 @@ class MapPageViewModel extends ChangeNotifier {
       number: '+994553660475');
   bool _detailsOpened = false;
   double get ratingToTrip => this._ratingToTrip;
+  StreamSubscription<LocationData> locationStream;
   set ratingToTrip(value) {
     this._ratingToTrip = value;
     notifyListeners();
@@ -96,29 +142,30 @@ class MapPageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  drawPolyline() async {
+  drawPolyline(LatLng start, LatLng end) async {
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         GOOGLE_API_KEY,
-        PointLatLng(
-            _locationData.latitude - 0.0190, _locationData.longitude - 0.1090),
-        PointLatLng(_locationData.latitude, _locationData.longitude),
+        PointLatLng(start.latitude, start.longitude),
+        PointLatLng(end.latitude, end.longitude),
         travelMode: TravelMode.driving);
     if (result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       });
     }
-    _addPolyLine();
+    _addPolyLine(startLatLng: LatLng(start.latitude - 0.06, start.longitude));
   }
 
-  _addPolyLine() {
+  _addPolyLine({@required LatLng startLatLng}) {
     PolylineId id = PolylineId("poly");
     Polyline polyline = Polyline(
       polylineId: id,
       color: kPrimaryColor,
       points: polylineCoordinates,
-      width: 3,
+      width: 5,
     );
+    _mapController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: startLatLng, zoom: 12)));
     polylines[id] = polyline;
     notifyListeners();
   }
@@ -137,6 +184,12 @@ class MapPageViewModel extends ChangeNotifier {
   String get costOfTrip => this._costOfTrip;
   set costOfTrip(value) {
     this._costOfTrip = value;
+    notifyListeners();
+  }
+
+  String get costOfTripPromo => this._costOfTripPromo;
+  set costOfTripPromo(value) {
+    this._costOfTripPromo = value;
     notifyListeners();
   }
 
@@ -167,16 +220,10 @@ class MapPageViewModel extends ChangeNotifier {
   }
 
   StatusOfMap get status => this._status;
-  String generateToken() {
-    var jwt = JWT(
-      {
-        "exp": DateTime.now().add(Duration(seconds: 10)).millisecondsSinceEpoch,
-        "custom_data": "some data",
-      },
-    );
-    //secret key is our secret passphrase
-    var token = jwt.sign(SecretKey('secret_key'));
-    return token;
+  @override
+  void dispose() {
+    super.dispose();
+    locationStream.cancel();
   }
 
   MapPageViewModel() {
@@ -187,61 +234,198 @@ class MapPageViewModel extends ChangeNotifier {
     // } catch (e) {
     //   print();
     // }
-
+// switch ($status) {
+//             case 0:
+//                 $message = "Sifariş yaradıldı";
+//                 $color = 'light';
+//                 break;
+//             case 1:
+//                 $message = "Sürücü qəbul elədi";
+//                 $color = 'secondary';
+//                 break;
+//             case 2:
+//                 $message = "Sürücü müştərini götürdü";
+//                 $color = 'primary';
+//                 break;
+//             case 3:
+//                 $message = "Sifariş tamamlandı";
+//                 $color = 'success';
+//                 break;
+//             case 10:
+//                 $message = "Sürücü imtina elədi";
+//                 $color = 'warning';
+//                 break;
+//             case 20:
+//                 $message = "Sürücü 20 saniyə keçdi imtina elədi";
+//                 $color = 'warning';
+//                 break;
+//             case 30:
+//                 $message = "Müştəri imtina elədi";
+//                 $color = 'danger';
+//                 break;
+//             default:
+//                 $message = "Naməlum status";
+//                 $color = 'light';
+//         }
+    getCreditCardsApi();
+    currentStatusFuture = getCurrentOrder();
+    getProfileFuture = getProfileApi();
     print('1');
     try {
-      // IO.Socket socket = IO.io('https://unik.neostep.az:6001');
-      // socket.onConnect((_) {
-      //   print('connect');
-      //   socket.emit('msg', 'test');
-      // });
-      // socket.on('TestEvent', (data) => print(data));
-      // socket.onDisconnect((_) => print('disconnect'));
-      // socket.on('fromServer', (_) => print(_));
       Echo echo = new Echo({
         'broadcaster': 'socket.io',
         'client': IO.io,
-        'host': 'https://unik.neostep.az:6001',
+        'host': 'https://unikeco.az:8443',
         'auth': {
           'headers': {'Authorization': 'Bearer $TOKEN'}
         }
       });
-      // echo.join('your_channel_name').here((users) {
-      //   print(users);
-      // }).joining((user) {
-      //   print(user);
-      // }).leaving((user) {
-      //   print(user);
-      // }).listen('PresenceEvent', (e) {
-      //   print(e);
+      // echo.private('driver-location.3').listen('DriverLocation', (e) {
+      //   print("POSITION: $e");
       // });
-      // echo.connect();
-      // print("ECHO ${}");
-      echo.private('user.1').listen('TestEvent', (e) {
-        print("EEE $e");
+      SharedPreferences.getInstance().then((value) {
+        echo.private('user.${value.getString('userId')}').listen('OrderEvent',
+            (e) {
+          print("EEE $e");
+          Map data = e;
+          switch (data['status']) {
+            case 2:
+              _status = StatusOfMap.DriverComes;
+              _driver = Driver(
+                  id: data['driver']['id'],
+                  lat: double.parse(data['driver']['latitude']),
+                  lng: double.parse(data['driver']['longitude']),
+                  profilePicAdress: data['driver']['image'],
+                  fullname: data['driver']['user']['full_name'],
+                  email: data['driver']['user']['email'],
+                  isMoped: data['driver']['car_type'] == null
+                      ? true
+                      : data['driver']['car_type'] == 0
+                          ? true
+                          : false,
+                  number: data['driver']['user']['phone'],
+                  vehicleNumberId: '${data['driver']['car_number']}',
+                  rating: double.parse(data['driver']['rating'].toString())
+                  //TODO ADD VEHICLE NUMBER
+                  );
+              orderId = data['order']['id'].toString();
+              _markers.clear();
+              addMarker(
+                  id: _driver.id.toString(),
+                  latitude: _driver.lat,
+                  longitude: _driver.lng);
+              // polylines.clear();
+              // drawPolyline(LatLng(_driver.lat, _driver.lng),
+              //     LatLng(locationData.latitude, locationData.longitude));
+
+              //  Driver(
+              //     name: data['driver']['user']['full_name'],
+              //     email: data['driver']['user']['email'],
+              //     isMoped: data['driver']['car_type'] == null
+              //         ? true
+              //         : data['driver']['car_type'] == 0
+              //             ? true
+              //             : false,
+              //     number: data['phone'],
+              //     vehicleNumberId: 'TEST',
+              //     rating: data['rating']
+              //     //TODO ADD VEHICLE NUMBER
+              //     );
+              print('2');
+              break;
+            case 3:
+              _status = StatusOfMap.YouAreOnWay;
+              print('3');
+              break;
+            case 4:
+              _status = StatusOfMap.TripFinished;
+              print('4');
+              _markers.clear();
+              polylines.clear();
+              polylineCoordinates.clear();
+              break;
+            case 10:
+              _status = StatusOfMap.SearchingDriver;
+              print('10');
+              break;
+            case 40:
+              print('40');
+              _status = StatusOfMap.Start;
+              //TODO TOAST NO DRIVER
+              break;
+          }
+
+          notifyListeners();
+        });
+        echo
+            .private('driver-location.${value.getString('userId')}')
+            .listen('DriverLocationEvent', (e) {
+          Map data = e;
+          print("LOCATION LIVE $data");
+          print(data['latitude']);
+          print(data['latitude'].runtimeType);
+          markers.clear();
+          final marker = Marker(
+              // icon: sourceIcon,
+              //  icon: BitmapDescriptor.fromBytes(markerIcond),
+              icon: BitmapDescriptor.fromBytes(car1),
+              markerId: MarkerId('${_driver.id.toString()}'),
+              position: LatLng(
+                double.parse(e['latitude']),
+                double.parse(e['longitude']),
+              ));
+          _markers['${_driver.id.toString()}'] = marker;
+          // markers[_driver.id.toString()] = Marker(
+          //     markerId: MarkerId(_driver.id.toString()),
+          //     position: LatLng(double.parse(e['user']['latitude']),
+          //         double.parse(e['user']['longitude'])));
+
+          notifyListeners();
+        });
       });
     } catch (e) {
       print("EEEXC $e");
     }
     print('2');
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      this._locationData = currentLocation;
+    // var channel =
+    //     IOWebSocketChannel.connect(Uri.parse('https://unikeco.az:6001'));
+    // channel.sink.add('received!');
+    // channel.stream.listen((message) {
+    //   channel.sink.add('received!');
+    //   // channel.sink.close(status.goingAway);
+    // });
+    // IO.Socket socket = IO.io('http://unik.neostep.az:6001');
+    // socket.onConnect((_) {
+    //   print('connect');
+    // });
+    // socket.on('event', (data) => print(data));
+    // socket.onDisconnect((_) => print('disconnect'));
+    // socket.on('fromServer', (_) => print(_));
+    // socket.emit('LocationDriver', ['3', '5', '1']);
+    locationStream =
+        location.onLocationChanged.listen((LocationData currentLocation) {
+      if (counter % 15 == 0) {
+        this._locationData = currentLocation;
+      }
+      counter++;
     });
     getBytesFromAsset('assets/map_page/car1.png', 70).then((value) {
       car1 = value;
-      final marker = Marker(
-        // icon: sourceIcon,
-        //  icon: BitmapDescriptor.fromBytes(markerIcond),
-        icon: BitmapDescriptor.fromBytes(car1),
-        markerId: MarkerId('1'),
-        position: LatLng(
-            _locationData.latitude - 0.0090, _locationData.longitude - 0.0090),
-      );
-      _markers['1'] = marker;
+      getNearestVehicles();
+      //  final marker = Marker(
+      //   // icon: sourceIcon,
+      //   //  icon: BitmapDescriptor.fromBytes(markerIcond),
+      //   icon: BitmapDescriptor.fromBytes(car1),
+      //   markerId: MarkerId('1'),
+      //   position: LatLng(
+      //       _locationData.latitude - 0.0090, _locationData.longitude - 0.0090),
+      // );
+      // _markers['1'] = marker;
     });
-    getBytesFromAsset('assets/map_page/car2.png', 70)
-        .then((value) => car2 = value);
+    // getBytesFromAsset('assets/map_page/car2.png', 70)
+    //     .then((value) => car2 = value);
   }
+
   set mapController(controller) {
     this._mapController = controller;
     notifyListeners();
@@ -251,6 +435,25 @@ class MapPageViewModel extends ChangeNotifier {
 
   findMyLocation() {
     return location.getLocation();
+  }
+
+  getCreditCardsApi() async {
+    var data = await WebService.getCall(
+        url: 'https://unikeco.az/api/customer/credit-cards?id=$ID',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $TOKEN'
+        });
+    print(data);
+    if (data[0] == 200) {
+      try {
+        _paymentType =
+            data[1]['data']['active'].toString() == '0' ? 'Cash' : 'Card';
+      } catch (e) {
+        print("EXCEPTION CARD $e");
+      }
+    }
+    notifyListeners();
   }
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
@@ -281,84 +484,276 @@ class MapPageViewModel extends ChangeNotifier {
   }
 
   List<TextEditingController> controllers = [TextEditingController()];
-  List<Adress> _adresses = [Adress()];
+  List<Adress> _adresses = [];
 
   List<Adress> get adresses => this._adresses;
   set adresses(value) {
     this._adresses = value;
   }
 
-  calculateOrder() async {
-    print('1');
-
-    List data1 =
-        await getLocationOfAdress(adress: "${_firstAdress.nameOfPlace}");
-    _firstAdress.lat = data1[0];
-    _firstAdress.lng = data1[1];
-
-    print('2');
-    // _adresses.forEach((element) async {
-    //   print("NAME ${element.nameOfPlace}");
-    //   List data2 = await getLocationOfAdress(
-    //       adress: "${element.nameOfPlace} ${element.adress}");
-    //   element.lat = data2[0];
-    //   element.lng = data2[1];
-    // });
-    for (var i = 0; i < _adresses.length; i++) {
-      print("NAME ${_adresses[i].nameOfPlace}");
-      List data2 =
-          await getLocationOfAdress(adress: "${_adresses[i].nameOfPlace}");
-      _adresses[i].lat = data2[0];
-      _adresses[i].lng = data2[1];
-    }
-    print('3');
-    print([
-      _firstAdress.lat,
-      _firstAdress.lng,
-      _adresses[0].lat,
-      _adresses[0].lng,
-    ]);
-    List disAndDur = await getDistanceBetweenPoints(
-      _firstAdress.lat,
-      _firstAdress.lng,
-      _adresses[0].lat,
-      _adresses[0].lng,
-    );
-    _distanceOfTrip = disAndDur[0];
-    _timeOfTrip = disAndDur[1];
-    print('4');
-    for (var i = 0; i < _adresses.length; i++) {
-      if (i + 1 != _adresses.length) {
-        List disAndDur2 = await getDistanceBetweenPoints(
-          _adresses[i].lat,
-          _adresses[i].lng,
-          _adresses[i + 1].lat,
-          _adresses[i + 1].lng,
-        );
-        _distanceOfTrip += disAndDur[0];
-        _timeOfTrip += disAndDur[1];
-      }
-    }
-    print('5');
-
-    calculateOrderApi();
-    notifyListeners();
-  }
-
-  calculateOrderApi() async {
-    var data = await WebService.postCall(url: CALCULATE_ORDER, data: {
-      'id': '1',
-      'car_type': _selectedVehicle == Vehicle.Moped ? '0' : '1',
-      'destination_km': //_distanceOfTrip.toString(),
-          '5',
-      'destination_count': (1 + _adresses.length).toString(),
+  sendReview() async {
+    var data = await WebService.postCall(url: SEND_REVIEW_CUSTOMER, data: {
+      // 'id': '1',
+      'order_id': orderId,
+      'rating': ratingToTrip.toString(),
+      'tip': (tipSelectedIndex * 5).toString(),
+      'message': comment
     }, headers: {
       'Accept': 'application/json',
       'Authorization': 'Bearer $TOKEN'
     });
     print(data);
+    _status = StatusOfMap.Start;
+    notifyListeners();
+  }
+
+  cancelOrder() async {
+    var data = await WebService.postCall(url: CANCEL_ORDER_CUSTOMER, data: {
+      'id': ID,
+      'order_id': orderId
+    }, headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $TOKEN'
+    });
+    print(data);
+    _status = StatusOfMap.Start;
+    notifyListeners();
+  }
+
+  calculateOrder() async {
+    try {
+      print('1');
+      print(_firstAdress.nameOfPlace);
+      List data1 =
+          await getLocationOfAdress(adress: "${_firstAdress.nameOfPlace}");
+      _firstAdress.lat = data1[0];
+      _firstAdress.lng = data1[1];
+
+      print('2');
+      // _adresses.forEach((element) async {
+      //   print("NAME ${element.nameOfPlace}");
+      //   List data2 = await getLocationOfAdress(
+      //       adress: "${element.nameOfPlace} ${element.adress}");
+      //   element.lat = data2[0];
+      //   element.lng = data2[1];
+      // });
+      polylines.clear();
+      polylineCoordinates.clear();
+      for (var i = 0; i < _adresses.length; i++) {
+        print("NAME ${_adresses[i].nameOfPlace}");
+        List data2 =
+            await getLocationOfAdress(adress: "${_adresses[i].nameOfPlace}");
+        _adresses[i].lat = data2[0];
+        _adresses[i].lng = data2[1];
+      }
+      print('3');
+      print([
+        _firstAdress.lat,
+        _firstAdress.lng,
+        _adresses[0].lat,
+        _adresses[0].lng,
+      ]);
+      List disAndDur = await getDistanceBetweenPoints(
+        _firstAdress.lat,
+        _firstAdress.lng,
+        _adresses[0].lat,
+        _adresses[0].lng,
+      );
+      _distanceOfTrip = disAndDur[0];
+      _timeOfTrip = disAndDur[1];
+      print('4');
+      for (var i = 0; i < _adresses.length; i++) {
+        if (i + 1 != _adresses.length) {
+          List disAndDur2 = await getDistanceBetweenPoints(
+            _adresses[i].lat,
+            _adresses[i].lng,
+            _adresses[i + 1].lat,
+            _adresses[i + 1].lng,
+          );
+          _distanceOfTrip += disAndDur[0];
+          _timeOfTrip += disAndDur[1];
+        }
+      }
+      print('5');
+
+      polylines.clear();
+      polylineCoordinates.clear();
+      drawPolyline(
+          LatLng(
+            _firstAdress.lat,
+            _firstAdress.lng,
+          ),
+          LatLng(
+            _adresses[0].lat,
+            _adresses[0].lng,
+          ));
+      for (var i = 0; i < _adresses.length; i++) {
+        if (i + 1 != _adresses.length) {
+          drawPolyline(
+              LatLng(_adresses[i].lat, _adresses[i].lng),
+              LatLng(
+                _adresses[i + 1].lat,
+                _adresses[i + 1].lng,
+              ));
+        }
+      }
+      List data = await calculateOrderApi();
+
+      notifyListeners();
+      return 200;
+    } catch (e) {
+      print("EXCEPTION calculate $e");
+      return 100;
+    }
+  }
+
+  Future<List> calculateOrderApi() async {
+    print('calculate api start');
+    var data = await WebService.postCall(url: CALCULATE_ORDER, data: {
+      'id': ID,
+      'car_type': _selectedVehicle == Vehicle.Moped ? '0' : '1',
+      'destination_km': //_distanceOfTrip.toString(),
+          '2',
+      'destination_count': (1 + _adresses.length).toString(),
+    }, headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $TOKEN'
+    });
+    print("CALCULATE API $data");
     if (data[0] == 200) {
-      _costOfTrip = data[1]['data']['tariffPrice'];
+      _costOfTrip = data[1]['data']['tariffPrice'].toString();
+      _costOfTripPromo = data[1]['data']['price'].toString();
+    }
+    print('calculate api done');
+    return data;
+  }
+
+  getNearestVehicles() async {
+    var data = await WebService.getCall(
+        url:
+            'https://unikeco.az/api/driver/live-location?latitude=${_locationData.latitude}&longitude=${_locationData.longitude}',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $TOKEN'
+        });
+    print(data);
+    if (data[0] == 200) {
+      print("LIVE TAXI EXIST");
+      try {
+        for (var i = 0; i < data[1]['data']['drivers'].length; i++) {
+          addMarker(
+              id: i.toString(),
+              latitude: double.parse(data[1]['data']['drivers'][i]['latitude']),
+              longitude:
+                  double.parse(data[1]['data']['drivers'][i]['longitude']));
+        }
+
+        // data[1]['data']['drivers'].forEach((key, value) {});
+      } catch (e) {
+        print("LIVE TAXI $e");
+      }
+    }
+    notifyListeners();
+  }
+
+  addMarker({String id, double latitude, double longitude}) {
+    final marker = Marker(
+      // icon: sourceIcon,
+      //  icon: BitmapDescriptor.fromBytes(markerIcond),
+      icon: BitmapDescriptor.fromBytes(car1),
+      markerId: MarkerId('$id'),
+      position: LatLng(
+        latitude,
+        longitude,
+      ),
+    );
+    _markers['$id'] = marker;
+  }
+
+  getCurrentOrder() async {
+    var data = await WebService.getCall(
+        url: 'https://unikeco.az/api/order/current-customer-order?id=$ID',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $TOKEN'
+        });
+    print(data);
+    if (data[0] == 200) {
+      if (data[1]['data']['status'] != -1) {
+        try {
+          orderId = data[1]['data']['id'].toString();
+          _timeOfTrip = int.parse(data[1]['data']['destination_time']);
+          _distanceOfTrip = int.parse(data[1]['data']['destination_km']);
+          _costOfTrip = data[1]['data']['tariff_price'];
+          _costOfTripPromo = data[1]['data']['destination_price'];
+          _costOfTripPromo = data[1]['data']['destination_price'];
+          _firstAdress = Adress(
+            nameOfPlace: data[1]['data']['destinations'][0]['destination'],
+            lat: double.parse(data[1]['data']['destinations'][0]['latitude']),
+            lng: double.parse(data[1]['data']['destinations'][0]['longitude']),
+          );
+          for (var i = 1; i < data[1]['data']['destinations'].length; i++) {
+            _adresses.add(Adress(
+                nameOfPlace: data[1]['data']['destinations'][i]['destination'],
+                lat: double.parse(
+                    data[1]['data']['destinations'][i]['latitude']),
+                lng: double.parse(
+                    data[1]['data']['destinations'][i]['longitude'])));
+          }
+          _driver = Driver(
+              id: data[1]['data']['driver']['id'],
+              lat: double.parse(data[1]['data']['driver']['latitude']),
+              lng: double.parse(data[1]['data']['driver']['longitude']),
+              profilePicAdress: data[1]['data']['driver']['image'],
+              fullname: data[1]['data']['driver']['user']['full_name'],
+              email: data[1]['data']['driver']['user']['email'],
+              isMoped: data[1]['data']['driver']['car_type'] == null
+                  ? true
+                  : data[1]['data']['driver']['car_type'] == 0
+                      ? true
+                      : false,
+              number: data[1]['data']['driver']['user']['phone'],
+              vehicleNumberId: '${data[1]['data']['driver']['car_number']}',
+              rating:
+                  double.parse(data[1]['data']['driver']['rating'].toString())
+              //TODO ADD VEHICLE NUMBER
+              );
+          _markers.clear();
+          addMarker(
+              id: _driver.id.toString(),
+              latitude: _driver.lat,
+              longitude: _driver.lng);
+        } catch (e) {
+          print("DRIVER EXC $e");
+        }
+      }
+      switch (data[1]['data']['status']) {
+        case 2:
+          _status = StatusOfMap.DriverComes;
+
+          print('2');
+          break;
+        case 3:
+          _status = StatusOfMap.YouAreOnWay;
+          print('3');
+          break;
+        case 4:
+          _status = StatusOfMap.TripFinished;
+          print('4');
+          _markers.clear();
+          polylines.clear();
+          polylineCoordinates.clear();
+          break;
+        case 10:
+          _status = StatusOfMap.SearchingDriver;
+          print('10');
+          break;
+        case 40:
+          print('40');
+          _status = StatusOfMap.Start;
+          //TODO TOAST NO DRIVER
+          break;
+      }
     }
     notifyListeners();
   }
@@ -368,11 +763,11 @@ class MapPageViewModel extends ChangeNotifier {
     try {
       print({
         'id': '0',
-        'customer_id': '1',
+        'customer_id': ID,
         'car_type': _selectedVehicle == Vehicle.Moped ? '0' : '1',
         'payment_method': _paymentType == 'Cash' ? '0' : '1',
         'destination_km': //_distanceOfTrip.toString(),
-            '5',
+            '2',
         'destination_time': _timeOfTrip,
         'destinations': json.encode(List.generate(
             _adresses.length + 1,
@@ -392,11 +787,11 @@ class MapPageViewModel extends ChangeNotifier {
       print('b');
       var data = await WebService.postCall(url: CREATE_ORDER, data: {
         'id': '0',
-        'customer_id': '1',
+        'customer_id': ID,
         'car_type': _selectedVehicle == Vehicle.Moped ? '0' : '1',
         'payment_method': _paymentType == 'Cash' ? '0' : '1',
         'destination_km': //_distanceOfTrip.toString(),
-            '5',
+            '2',
         'destination_time': _timeOfTrip.toString(),
         'destination_count': (_adresses.length + 1).toString(),
         'destinations': json.encode(List.generate(
@@ -417,10 +812,11 @@ class MapPageViewModel extends ChangeNotifier {
         'Accept': 'application/json',
         'Authorization': 'Bearer $TOKEN'
       });
-      print(data);
+      print("CREATE ORDER API $data");
       if (data[0] == 200) {
         // _costOfTrip = data[1]['data']['tariffPrice'];
       }
+      return data;
     } catch (e) {
       print(e);
     }
@@ -461,5 +857,65 @@ class MapPageViewModel extends ChangeNotifier {
       response[1]['rows'][0]['elements'][0]['distance']['value'],
       response[1]['rows'][0]['elements'][0]['duration_in_traffic']['value'],
     ];
+  }
+
+  Future getProfileFuture;
+  getProfileApi() async {
+    var data = await WebService.getCall(url: GET_USER, headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $TOKEN'
+    });
+    print(data);
+
+    if (data[0] == 200) {
+      print(data);
+      try {
+        _user = User(
+          name: data[1]['data']['customer']['user']['full_name'],
+          surname: ' ',
+          profilePicAdress: data[1]['data']['image'],
+          id: data[1]['data']['customer']['user']['id'],
+          // email: data[1]['data']['customer']['user']['email'],
+          homeAdress: data[1]['data']['customer']['home_address'] == null
+              ? Adress()
+              : Adress(
+                  nameOfPlace: data[1]['data']['customer']['home_address'],
+                  lat: double.parse(
+                      data[1]['data']['customer']['home_address_latitude']),
+                  lng: double.parse(
+                      data[1]['data']['customer']['home_address_longitude']),
+                ),
+          workAdress: data[1]['data']['customer']['work_adress'] == null
+              ? Adress()
+              : Adress(
+                  nameOfPlace: data[1]['data']['customer']['work_adress'],
+                  lat: double.parse(
+                      data[1]['data']['customer']['work_adress_latitude']),
+                  lng: double.parse(
+                      data[1]['data']['customer']['work_adress_longitude']),
+                ),
+          lastAdress: data[1]['data']['customer']['last_adress'] == null
+              ? Adress()
+              : Adress(
+                  nameOfPlace: data[1]['data']['customer']['last_adress'],
+                  lat: double.parse(
+                      data[1]['data']['customer']['last_adress_latitude']),
+                  lng: double.parse(
+                      data[1]['data']['customer']['last_adress_longitude']),
+                ),
+          // phone: data[1]['data']['user']['phone']
+        );
+        print('USER OUT');
+      } catch (e) {
+        print("USER EXC $e");
+      }
+      // _faqs = data[1]['data']
+      //     .map<FaqWidgetModel>(
+      //       (val) =>
+      //           FaqWidgetModel(content: val['content'], title: val['title']),
+      //     )
+      //     .toList();
+
+    }
   }
 }

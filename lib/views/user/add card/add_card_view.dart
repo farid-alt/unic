@@ -1,10 +1,14 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/endpoints.dart';
 import 'package:unic_app/models/user/payment_method.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/payments/payments_view.dart';
 import 'package:unic_app/views/user/payments/payments_viewmodel.dart';
 
@@ -21,7 +25,13 @@ class _AddCardViewState extends State<AddCardView> {
   TextEditingController _expiryDate = TextEditingController();
 
   TextEditingController _secureCode = TextEditingController();
-
+  MaskTextInputFormatter maskTextInputFormatter = MaskTextInputFormatter(
+    mask: '##/##',
+  );
+  MaskTextInputFormatter maskTextInputFormatterCardNumber =
+      MaskTextInputFormatter(
+    mask: '#### #### #### ####',
+  );
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -42,13 +52,14 @@ class _AddCardViewState extends State<AddCardView> {
               children: [
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: AutoSizeText('Cancel',
+                  child: AutoSizeText(
+                      "${kGeneralTranslates['cancel'][LANGUAGE]}",
                       style: TextStyle(
                           color: kPrimaryColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w500)),
                 ),
-                AutoSizeText('New card',
+                AutoSizeText("${kMenuTranslates['new_card'][LANGUAGE]}",
                     style: TextStyle(
                         color: kTextPrimary,
                         fontSize: 18,
@@ -65,6 +76,7 @@ class _AddCardViewState extends State<AddCardView> {
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
               controller: _cardNumber,
+              inputFormatters: [maskTextInputFormatterCardNumber],
               decoration: InputDecoration(
                   prefixIcon: UnconstrainedBox(
                     child: Padding(
@@ -77,7 +89,7 @@ class _AddCardViewState extends State<AddCardView> {
                     ),
                   ),
                   //labelText: 'Card number',
-                  hintText: 'Card number',
+                  hintText: '${kMenuTranslates['card_number'][LANGUAGE]}',
                   hintStyle: TextStyle(
                     color: kTextPrimary,
                     fontWeight: FontWeight.w400,
@@ -100,13 +112,13 @@ class _AddCardViewState extends State<AddCardView> {
                 SizedBox(
                   width: size.width / (375 / 165),
                   child: TextField(
-                    keyboardType: TextInputType.datetime,
+                    inputFormatters: [maskTextInputFormatter],
+                    keyboardType: TextInputType.number,
                     onChanged: (_) => setState(() {}),
                     controller: _expiryDate,
                     decoration: InputDecoration(
-                        hintText: 'Expiry date',
+                        hintText: '${kMenuTranslates['expiry_date'][LANGUAGE]}',
                         //labelText: 'Expiry date',
-
                         hintStyle: TextStyle(
                           color: kTextPrimary,
                           fontWeight: FontWeight.w400,
@@ -125,12 +137,13 @@ class _AddCardViewState extends State<AddCardView> {
                 SizedBox(
                   width: size.width / (375 / 165),
                   child: TextField(
+                    maxLength: 3,
                     keyboardType: TextInputType.phone,
                     onChanged: (_) => setState(() {}),
                     controller: _secureCode,
                     decoration: InputDecoration(
                         //contentPadding: EdgeInsets.only(left: 5),
-                        hintText: 'Secure code',
+                        hintText: '${kMenuTranslates['secure_code'][LANGUAGE]}',
                         //labelText: 'Secure code',
 
                         hintStyle: TextStyle(
@@ -154,28 +167,37 @@ class _AddCardViewState extends State<AddCardView> {
             GestureDetector(
               onTap: () async {
                 //TODO: add card
+                String cardNumber = _cardNumber.text.replaceAll(' ', '');
+                print(cardNumber);
+                print(cardNumber.length);
                 var year = _expiryDate.text.substring(3);
                 var month = _expiryDate.text.substring(0, 2);
                 if (_cardNumber.text.isNotEmpty &&
-                    _secureCode.text.isNotEmpty) {
-                  await widget.model.addCardApi(
-                      cardNumber: _cardNumber.text,
+                    _secureCode.text.isNotEmpty &&
+                    cardNumber.length == 16) {
+                  final response = await widget.model.addCardApi(
+                      cardNumber: cardNumber,
                       ccv: _secureCode.text,
                       expDate: DateTime(int.parse('20$year'), int.parse(month))
                           .toString());
-                  widget.model.newCard({
-                    'card': PaymentMethod(
-                        cardCcv: _secureCode.text,
-                        cardNumber: _cardNumber.text,
-                        expDate:
-                            DateTime(int.parse('20$year'), int.parse(month)),
-                        type: _cardNumber.text[0] == 5.toString()
-                            ? PaymentType.MasterCard
-                            : PaymentType.Visa),
-                    'isChoosen': false
-                  });
-                  Navigator.pop(context);
-                }
+                  if (response == 200) {
+                    Navigator.pop(context);
+                  } else {
+                    Fluttertoast.showToast(msg: 'Check card data');
+                  }
+                  // widget.model.newCard({
+                  //   'cash': 'false',
+                  //   'card': PaymentMethod(
+                  //       cardCcv: _secureCode.text,
+                  //       cardNumber: cardNumber,
+                  //       expDate: _expiryDate.text,
+                  //       type: _cardNumber.text[0] == 5.toString()
+                  //           ? PaymentType.MasterCard
+                  //           : PaymentType.Visa),
+                  //   'isChoosen': false
+                  // });
+
+                } else {}
 
                 // Navigator.push(
                 //     context,
@@ -187,7 +209,7 @@ class _AddCardViewState extends State<AddCardView> {
                 height: size.height / (812 / 60),
                 child: Center(
                     child: AutoSizeText(
-                  'Add card',
+                  '${kMenuTranslates['add_card'][LANGUAGE]}',
                   style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w400,

@@ -2,11 +2,16 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kf_drawer/kf_drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/drawer/drawerItem.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/driver/driver_mainwrapper/driver_mainwrapper.dart';
+import 'package:unic_app/views/user/code_page/code_page_view.dart';
 import 'package:unic_app/views/user/main_wrapper/main_wrapper_viewmodel.dart';
 import 'package:unic_app/views/user/map_page/map_page_view.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
@@ -76,47 +81,59 @@ class _MainWrapperViewState extends State<MainWrapperView> {
         //   onPressed: () {},
         // )
         buildDrawerItem(
-          title: 'Payments',
+          title: '${kMenuTranslates['payments'][LANGUAGE]}',
           icon: 'Wallet.svg',
           page: PaymentsView(),
           function: () => Navigator.push(
               context, MaterialPageRoute(builder: (context) => PaymentsView())),
         ),
         buildDrawerItem(
-          title: 'Promotions',
+          title: '${kMenuTranslates['promotions'][LANGUAGE]}',
           icon: 'Discount.svg',
           page: PromotionsView(),
           function: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => PromotionsView())),
         ),
         buildDrawerItem(
-          title: 'Ride history',
+          title: '${kMenuTranslates['ride_history'][LANGUAGE]}',
           icon: 'Calendar.svg',
           page: RideHistoryView(),
           function: () => Navigator.push(context,
               MaterialPageRoute(builder: (context) => RideHistoryView())),
         ),
         buildDrawerItem(
-          title: 'Support',
+          title: '${kMenuTranslates['support'][LANGUAGE]}',
           icon: 'Message.svg',
           page: SupportView(),
           function: () => Navigator.push(
               context, MaterialPageRoute(builder: (context) => SupportView())),
         ),
         buildDrawerItem(
-          title: 'Terms & Conditions',
+          title: '${kMenuTranslates['terms_conditions'][LANGUAGE]}',
           icon: 'Document.svg',
           page: TermsPage(),
           function: () => Navigator.push(
               context, MaterialPageRoute(builder: (context) => TermsPage())),
         ),
         buildDrawerItem(
-          title: 'Privacy & Policy',
+          title: '${kMenuTranslates['privacy_policy'][LANGUAGE]}',
           icon: 'Password.svg',
           page: PrivacyPage(),
           function: () => Navigator.push(
               context, MaterialPageRoute(builder: (context) => PrivacyPage())),
         ),
+        buildDrawerItem(
+            title: 'Logout',
+            icon: 'Logout.svg',
+            page: PrivacyPage(),
+            function: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.clear();
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => CodePageView()),
+                  (Route<dynamic> route) => false);
+            }),
       ],
     );
     super.initState();
@@ -126,100 +143,127 @@ class _MainWrapperViewState extends State<MainWrapperView> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     print('here3');
-
-    return Scaffold(
-        backgroundColor: kPrimaryColor,
-        body: KFDrawer(
-          animationDuration: Duration(milliseconds: 200),
-          // menuPadding:
-          //     EdgeInsets.only(left: 16.width, bottom: 24.height),
-          controller: _drawerController,
-          header: Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-                // padding: EdgeInsets.symmetric(horizontal: 16.0.width),
-                // width: MediaQuery.of(context).size.width * 0.5,
-                // height: 260.height,
-                child: Row(
-              children: [
-                SizedBox(
-                  width: size.width / (375 / 16),
+    return ViewModelBuilder<MainWrapperViewModel>.reactive(
+        builder: (context, model, child) {
+          return Scaffold(
+              backgroundColor: kPrimaryColor,
+              body: KFDrawer(
+                animationDuration: Duration(milliseconds: 200),
+                // menuPadding:
+                //     EdgeInsets.only(left: 16.width, bottom: 24.height),
+                controller: _drawerController,
+                header: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FutureBuilder(
+                      future: model.getUser,
+                      builder: (context, snapshot) {
+                        return Container(
+                            // padding: EdgeInsets.symmetric(horizontal: 16.0.width),
+                            // width: MediaQuery.of(context).size.width * 0.5,
+                            // height: 260.height,
+                            child: Row(
+                          children: [
+                            SizedBox(
+                              width: size.width / (375 / 16),
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          UserProfilePageView())).then((value) {
+                                model.getUser = model.getUserApi();
+                              }),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: size.width / (375 / 27),
+                                    backgroundImage: NetworkImage(
+                                        'https://unikeco.az${model.user.profilePicAdress}'),
+                                  ),
+                                  SizedBox(
+                                    width: size.width / (375 / 16),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      AutoSizeText(
+                                        '${model.user.name}',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white),
+                                      ),
+                                      SizedBox(
+                                        height: size.height / (815 / 4),
+                                      ),
+                                      AutoSizeText(
+                                        '${kMenuTranslates['edit_profile'][LANGUAGE]}',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ));
+                      }),
                 ),
-                CircleAvatar(
-                  radius: size.width / (375 / 27),
-                ),
-                SizedBox(
-                  width: size.width / (375 / 16),
-                ),
-                GestureDetector(
-                  onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UserProfilePageView())),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        'Afsana Hajizada',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white),
+                footer: Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (model.isDriver) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DriverMainWrapperView()));
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: 'You are not driver. Registration is in Dev',
+                            gravity: ToastGravity.CENTER);
+                      }
+                    },
+                    child: Container(
+                      width: size.width / (375 / 213),
+                      height: size.height / (815 / 60),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(15),
+                          bottomRight: Radius.circular(15),
+                        ),
+                        color: Colors.white,
                       ),
-                      SizedBox(
-                        height: size.height / (815 / 4),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: size.width / (375 / 16)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            AutoSizeText(
+                              kMenuTranslates['become_driver'][LANGUAGE]
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: kTextPrimary),
+                            ),
+                            Icon(Icons.arrow_forward,
+                                size: size.width / (375 / 18)),
+                          ],
+                        ),
                       ),
-                      AutoSizeText(
-                        'Edit profile',
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white),
-                      ),
-                    ],
+                    ),
                   ),
-                )
-              ],
-            )),
-          ),
-          footer: Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DriverMainWrapperView())),
-              child: Container(
-                width: size.width / (375 / 213),
-                height: size.height / (815 / 60),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(15),
-                    bottomRight: Radius.circular(15),
-                  ),
-                  color: Colors.white,
                 ),
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: size.width / (375 / 16)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      AutoSizeText(
-                        'Become a driver'.toUpperCase(),
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: kTextPrimary),
-                      ),
-                      Icon(Icons.arrow_forward, size: size.width / (375 / 18)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ));
+              ));
+        },
+        viewModelBuilder: () => MainWrapperViewModel());
   }
 
   KFDrawerItem buildDrawerItem({title, icon, page, function}) {

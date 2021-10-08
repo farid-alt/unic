@@ -5,6 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/faq/faq_viewmodel.dart';
 
 class FaqView extends StatelessWidget {
@@ -23,7 +25,10 @@ class FaqView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      BackWithTitle(size: size, title: 'faq'.toUpperCase()),
+                      BackWithTitle(
+                          size: size,
+                          title: '${kMenuTranslates['faq'][LANGUAGE]}'
+                              .toUpperCase()),
                       SizedBox(height: size.height / (812 / 32)),
                       Expanded(
                         child: ListView.builder(

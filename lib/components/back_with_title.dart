@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 
 class BackWithTitle extends StatelessWidget {
   const BackWithTitle({
@@ -27,7 +29,7 @@ class BackWithTitle extends StatelessWidget {
                 color: isBlue ? Colors.white : kPrimaryColor,
                 size: size.height / (812 / 24)),
             AutoSizeText(
-              'Back',
+              '${kGeneralTranslates['back'][LANGUAGE]}',
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,

@@ -1,5 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 
 class ArrowBackBtn extends StatelessWidget {
   const ArrowBackBtn({
@@ -18,7 +20,7 @@ class ArrowBackBtn extends StatelessWidget {
           color: Colors.white,
         ),
         AutoSizeText(
-          'Back',
+          "${kGeneralTranslates['back'][LANGUAGE]}",
           style: TextStyle(
               color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
         )

@@ -6,13 +6,18 @@ import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/endpoints.dart';
 import 'package:unic_app/models/user/ride.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/contact%20us/contact_us.dart';
 import 'package:unic_app/views/user/faq/faq_view.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_viewmodel.dart';
+import 'package:unic_app/views/user/ride_issues/ride_issues_view.dart';
 import 'package:unic_app/views/user/support/support_viewmodel.dart';
 
 class SupportView extends KFDrawerContent {
+  SupportView({this.driver = false});
+  bool driver;
   @override
   _SupportViewState createState() => _SupportViewState();
 }
@@ -28,43 +33,73 @@ class _SupportViewState extends State<SupportView> {
             padding: EdgeInsets.symmetric(
                 horizontal: size.width / (375 / 16),
                 vertical: size.height / (812 / 60)),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BackWithTitle(size: size, title: 'Support'),
-                SizedBox(height: size.height / (812 / 32)),
-                AutoSizeText(
-                  'Select your ride',
-                  style: TextStyle(
-                      color: kTextPrimary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600),
-                ),
-                SizedBox(height: size.height / (812 / 16)),
-                for (int index = 0; index < model.rides.length; index++)
-                  RideContainerSmallSupport(
-                      size: size,
-                      rideDate:
-                          '${DateFormat.MMMMd('en').format(model.rides[index].rideDate)}, ${DateFormat('hh:mm').format(model.rides[index].rideDate)}',
-                      endAdress: model.rides[index].endAdress,
-                      isMoped: model.rides[index].driver.isMoped),
-                SizedBox(height: size.height / (812 / 16)),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => ContactUs()));
-                    },
-                    child: SimpleSupportContainer(
-                        size: size, title: 'Contact us')),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => FaqView()));
-                    },
-                    child: SimpleSupportContainer(size: size, title: 'FAQ')),
-              ],
-            ),
+            child: FutureBuilder(
+                future: model.ridesFuture,
+                builder: (context, snapshot) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BackWithTitle(
+                          size: size,
+                          title: '${kMenuTranslates['support'][LANGUAGE]}'),
+                      SizedBox(height: size.height / (812 / 32)),
+                      if (!widget.driver && model.rides.length != 0)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AutoSizeText(
+                              '${kMenuTranslates['select_your_ride'][LANGUAGE]}',
+                              style: TextStyle(
+                                  color: kTextPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            SizedBox(height: size.height / (812 / 16)),
+                            for (int index = 0;
+                                index < model.rides.length;
+                                index++)
+                              GestureDetector(
+                                onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => RideIssuesView(
+                                            rideId: model.rides[index].rideId
+                                                .toString()))),
+                                child: RideContainerSmallSupport(
+                                    size: size,
+                                    rideDate:
+                                        '${DateFormat.MMMMd('en').format(model.rides[index].rideDate)}, ${DateFormat('hh:mm').format(model.rides[index].rideDate)}',
+                                    endAdress: model.rides[index].endAdress,
+                                    isMoped: model.rides[index].driver.isMoped),
+                              ),
+                            SizedBox(height: size.height / (812 / 16)),
+                          ],
+                        ),
+                      GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ContactUs()));
+                          },
+                          child: SimpleSupportContainer(
+                              size: size,
+                              title:
+                                  '${kMenuTranslates['contact_us'][LANGUAGE]}')),
+                      GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FaqView()));
+                          },
+                          child: SimpleSupportContainer(
+                              size: size,
+                              title: '${kMenuTranslates['faq'][LANGUAGE]}')),
+                    ],
+                  );
+                }),
           )),
       viewModelBuilder: () => SupportViewModel(),
     );

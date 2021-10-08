@@ -1,10 +1,15 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:share/share.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/get_rides/get_rides_viewmodel.dart';
+import 'package:clipboard/clipboard.dart';
 
 class PrimaryColorBox extends ViewModelWidget<GetRidesViewModel> {
   const PrimaryColorBox({
@@ -24,7 +29,10 @@ class PrimaryColorBox extends ViewModelWidget<GetRidesViewModel> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          BackWithTitle(size: size, title: 'Get free rides', isBlue: true),
+          BackWithTitle(
+              size: size,
+              title: '${kMenuTranslates['get_free_rides'][LANGUAGE]}',
+              isBlue: true),
           SizedBox(height: size.height / (812 / 70)),
           Container(
             height: size.height / (812 / 193),
@@ -36,13 +44,13 @@ class PrimaryColorBox extends ViewModelWidget<GetRidesViewModel> {
           ),
           SizedBox(height: size.height / (812 / 24)),
           AutoSizeText(
-            'Get free rides!',
+            '${kMenuTranslates['get_free_rides'][LANGUAGE]}',
             style: TextStyle(
                 color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20),
           ),
           SizedBox(height: size.height / (812 / 10)),
           AutoSizeText(
-            'Invite a friend and get ${model.referal.discountAmount} AZN off\nyour next trip!',
+            '${kMenuTranslates['invite1'][LANGUAGE]} ${model.referal.discountAmount} ${kMenuTranslates['invite2'][LANGUAGE]}',
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16),
@@ -91,7 +99,7 @@ class WhiteBox extends ViewModelWidget<GetRidesViewModel> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AutoSizeText('Your code',
+                    AutoSizeText("${kMenuTranslates['promo_code'][LANGUAGE]}",
                         style: TextStyle(
                             color: kTextSecondaryColor,
                             fontSize: 14,
@@ -103,19 +111,27 @@ class WhiteBox extends ViewModelWidget<GetRidesViewModel> {
                             fontWeight: FontWeight.w600)),
                   ],
                 ),
-                Icon(Icons.copy, color: kPrimaryColor, size: 16)
+                InkWell(
+                    onTap: () {
+                      FlutterClipboard.copy(model.referal.refCode)
+                          .then((value) => print('copied'));
+                      Fluttertoast.showToast(
+                          msg: 'Copied!',
+                          gravity: ToastGravity.CENTER,
+                          backgroundColor: Colors.green);
+                    },
+                    child: Icon(Icons.copy, color: kPrimaryColor, size: 16))
               ],
             ),
           ),
           SizedBox(height: size.height / (812 / 24)),
-          GestureDetector(
-            onTap: () {}, //TODO: Invitation implementation
-            child: PrimaryButton(
-              color: kPrimaryColor,
-              size: size,
-              textColor: Colors.white,
-              title: 'Invite your friend',
-            ),
+          PrimaryButton(
+            color: kPrimaryColor,
+            size: size,
+            textColor: Colors.white,
+            function: () => Share.share(
+                'Download Unic and use my promo code ${model.referal.refCode}'),
+            title: "${kMenuTranslates['invite_your_friend'][LANGUAGE]}",
           ),
         ],
       ),

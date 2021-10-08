@@ -4,10 +4,14 @@ import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/ride%20history/ride_container.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/ride_history/ride_history_viewmodel.dart';
 // import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class RideHistoryView extends KFDrawerContent {
+  RideHistoryView({this.driver = false});
+  bool driver;
   @override
   _RideHistoryViewState createState() => _RideHistoryViewState();
 }
@@ -30,13 +34,15 @@ class _RideHistoryViewState extends State<RideHistoryView> {
                     SizedBox(height: size.height / (812 / 60)),
                     BackWithTitle(
                       size: size,
-                      title: 'Ride history',
+                      title: '${kMenuTranslates['ride_history'][LANGUAGE]}',
                     ),
                     SizedBox(height: size.height / (812 / 12)),
                     Expanded(
                       child: ListView.separated(
                           itemBuilder: (context, index) => RideHistoryContainer(
-                              index: index,
+                              // index: index,
+                              isDriver: widget.driver,
+                              ride: model.rides[index],
                               size: size,
                               endAdress: '${model.rides[index].endAdress}',
                               startAdress: '${model.rides[index].startAdress}',

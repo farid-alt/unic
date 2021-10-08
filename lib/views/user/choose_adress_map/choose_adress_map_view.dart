@@ -8,12 +8,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
+import 'package:unic_app/models/adress.dart';
 import 'package:unic_app/views/user/choose_adress_map/choose_adress_map_viewmodel.dart';
 import 'package:unic_app/views/user/enter%20promo/enter_promo_viewmodel.dart';
 
 class TakeAdress extends StatefulWidget {
   TakeAdress({this.location});
-  String location;
+  Adress location;
   @override
   _TakeAdressState createState() => _TakeAdressState();
 }
@@ -30,6 +31,21 @@ class _TakeAdressState extends State<TakeAdress> {
   LatLng newMarkerPosition;
 
   LatLng myPositionGeo;
+  @override
+  void initState() {
+    if (widget.location.nameOfPlace != null) {
+      adress = widget.location.nameOfPlace;
+      // newMarkerPosition.latitude = widget.location.lat;
+      newMarkerPosition = LatLng(widget.location.lat, widget.location.lng);
+      _markers.add(
+        Marker(
+            markerId: MarkerId('1'),
+            position: LatLng(widget.location.lat, widget.location.lng)),
+      );
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -71,31 +87,36 @@ class _TakeAdressState extends State<TakeAdress> {
                             _updatePosition(_position)),
                         markers: _markers,
                         initialCameraPosition: CameraPosition(
-                            target: LatLng(snapshot.data.latitude,
-                                snapshot.data.longitude),
+                            target: widget.location.nameOfPlace != null
+                                ? LatLng(
+                                    widget.location.lat, widget.location.lng)
+                                : LatLng(snapshot.data.latitude,
+                                    snapshot.data.longitude),
                             zoom: 15),
                         onMapCreated: (controller) {
                           _mapController = controller;
-                          newMarkerPosition = LatLng(
-                              snapshot.data.latitude, snapshot.data.longitude);
-                          Geocoder.local
-                              .findAddressesFromCoordinates(Coordinates(
-                                  snapshot.data.latitude,
-                                  snapshot.data.longitude))
-                              .then((value) {
-                            print(value.first.addressLine);
-                            setState(() {
-                              adress = value.first.addressLine;
+                          if (widget.location.nameOfPlace == null) {
+                            newMarkerPosition = LatLng(snapshot.data.latitude,
+                                snapshot.data.longitude);
+                            Geocoder.local
+                                .findAddressesFromCoordinates(Coordinates(
+                                    snapshot.data.latitude,
+                                    snapshot.data.longitude))
+                                .then((value) {
+                              print(value.first.addressLine);
+                              setState(() {
+                                adress = value.first.addressLine;
+                              });
                             });
-                          });
-                          _markers.add(
-                            Marker(
-                              markerId: MarkerId('1'),
-                              position: LatLng(snapshot.data.latitude,
-                                  snapshot.data.longitude),
-                            ),
-                          );
-                          setState(() {});
+                            _markers.add(
+                              Marker(
+                                markerId: MarkerId('1'),
+                                position: LatLng(snapshot.data.latitude,
+                                    snapshot.data.longitude),
+                              ),
+                            );
+                            setState(() {});
+                          }
                         },
                       ),
                       Align(
@@ -108,7 +129,11 @@ class _TakeAdressState extends State<TakeAdress> {
                             size: size,
                             textColor: Colors.white,
                             function: () {
-                              Navigator.pop(context);
+                              Navigator.pop(context, [
+                                adress,
+                                newMarkerPosition.latitude,
+                                newMarkerPosition.longitude
+                              ]);
                             },
                           ),
                         ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/services/image_picker.dart';
 import 'package:unic_app/views/driver/driver_profile_viewmodel.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_viewmodel.dart';
 
@@ -25,14 +26,13 @@ class PositionedWithCircleAvatarDriver
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
-              radius: size.width / (375 / 56),
-              foregroundImage: model.user.profilePicAdress != ' '
-                  ? NetworkImage('${model.user.profilePicAdress}')
-                  : NetworkImage(
-                      'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'),
-            ),
+                radius: size.width / (375 / 56),
+                backgroundImage: model.localFile != null
+                    ? AssetImage(model.localFile.path)
+                    : NetworkImage(
+                        'https://unikeco.az${model.user.profilePicAdress}')),
             SizedBox(height: size.height / (812 / 10)),
-            AutoSizeText('${model.user.name} ${model.user.surname}',
+            AutoSizeText('${model.user.fullname}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 16,
@@ -40,14 +40,19 @@ class PositionedWithCircleAvatarDriver
                     color: kTextPrimary)),
             SizedBox(height: size.height / (812 / 6)),
             GestureDetector(
-              onTap: () {
-                //TODO: implement
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => UserProfileEditPageView()));
+              onTap: () async {
+                try {
+                  final resultOfImagePicker = await getImage();
+                  if (resultOfImagePicker.runtimeType != 'No selected image') {
+                    model.localFile = resultOfImagePicker;
+                    await model.sendDriverImage();
+                    // setState(() {});
+                  }
+                } catch (e) {
+                  print(e);
+                }
               },
-              child: AutoSizeText('Edit profile',
+              child: AutoSizeText('Edit image',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 14,
@@ -58,7 +63,7 @@ class PositionedWithCircleAvatarDriver
               height: size.height / (815 / 24),
             ),
             AutoSizeText(
-              'Rating – 4.7',
+              'Rating – ${model.user.rating}',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -85,7 +90,7 @@ class PositionedWithCircleAvatarDriver
               height: size.height / (815 / 17),
             ),
             AutoSizeText(
-              'Activity – 80%',
+              'Activity – ${model.user.activity}%',
               style: TextStyle(
                   color: kTextSecondaryColor,
                   fontSize: 16,

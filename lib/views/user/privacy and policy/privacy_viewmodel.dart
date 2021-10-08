@@ -3,13 +3,13 @@ import 'package:unic_app/services/web_services.dart';
 
 import '../../../endpoints.dart';
 
-class TermsViewModel extends BaseViewModel {
-  Future futureTerms;
-  TermsViewModel() {
-    futureTerms = getTerms();
+class PrivacyViewModel extends BaseViewModel {
+  Future futurePrivacy;
+  PrivacyViewModel() {
+    futurePrivacy = getTerms();
   }
 
-  String terms = '';
+  String privacy = '';
 
   getTerms() async {
     var data = await WebService.getCall(url: GET_TERMS, headers: {
@@ -18,7 +18,7 @@ class TermsViewModel extends BaseViewModel {
     });
     if (data[0] == 200) {
       print(data);
-      terms = data[1]['data']['term']; //TODO: FINISH
+      privacy = data[1]['data']['privacy']; //TODO: FINISH
     }
   }
 }

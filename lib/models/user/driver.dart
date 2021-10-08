@@ -5,6 +5,8 @@ class Driver {
   String number;
   double rating;
   int activity;
+  double lat;
+  double lng;
 
   Driver(
       {this.name,
@@ -17,13 +19,21 @@ class Driver {
       this.rating,
       this.fullname,
       this.activity,
-      this.vehicleNumberId});
-  factory Driver.fromJson(json) => Driver(
-      fullname: json['user']['full_name'],
-      email: json['user']['email'],
-      number: json['user']['phone'],
-      rating: json['rating'],
-      profilePicAdress: json['image'],
-      //TODO: get adress of picture
-      activity: json['activity']);
+      this.vehicleNumberId,
+      this.lat,
+      this.lng});
+  factory Driver.fromJson(json) {
+    try {
+      return Driver(
+          fullname: json['user']['full_name'],
+          email: json['user']['email'],
+          number: json['user']['phone'],
+          rating: double.parse(json['rating'].toString()),
+          profilePicAdress: json['image'],
+          //TODO: get adress of picture
+          activity: json['activity']);
+    } catch (e) {
+      print("EXCEPTION $e");
+    }
+  }
 }

@@ -8,7 +8,7 @@ enum PaymentType { MasterCard, Visa, Cash }
 class PaymentsViewModel extends BaseViewModel {
   PaymentType _paymentType = PaymentType.MasterCard;
   Future getCreditCards;
-
+  String activeCardId;
   PaymentsViewModel() {
     getCreditCards = getCreditCardsApi();
   }
@@ -17,6 +17,7 @@ class PaymentsViewModel extends BaseViewModel {
 
   void newCard(card) {
     _payments.add(card);
+
     print(_payments);
     notifyListeners();
   }
@@ -55,6 +56,8 @@ class PaymentsViewModel extends BaseViewModel {
       if (i != index) _payments[i]['isChoosen'] = false;
 
     _payments[index]['isChoosen'] = true;
+    activeCardId = _payments[index]['card'].id.toString();
+    activeCard();
 
     notifyListeners();
   }
@@ -80,30 +83,65 @@ class PaymentsViewModel extends BaseViewModel {
       //print(data[1]);
       print('success $data[1]');
     }
+    print(data);
+    return data[0];
+  }
+
+  activeCard() async {
+    print("ACTIVE CARD ID $activeCardId");
+    var data = await WebService.postCall(url: ACTIVE_CARD, data: {
+      'card_id': activeCardId,
+      'id': ID
+    }, headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $TOKEN'
+    });
+    if (data[0] == 200) {
+      //print(data[1]);
+      print('success $data[1]');
+    }
+    print(data);
     return data[0];
   }
 
   getCreditCardsApi() async {
     var data = await WebService.getCall(
-        url: 'http://unik.neostep.az/api/customer/credit-cards?id=$ID',
+        url: 'https://unikeco.az/api/customer/credit-cards?id=$ID',
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $TOKEN'
         });
     print(data);
     if (data[0] == 200) {
-      _payments = data[1]['data']
-          .map<Map<String, dynamic>>((val) => {
-                'card': PaymentMethod(
-                    cardCcv: val['secure_code'],
-                    cardNumber: val['card_number'],
-                    expDate: DateTime.parse(val['expire_date']),
-                    type: val['card_number'][0] == 5
-                        ? PaymentType.MasterCard
-                        : PaymentType.Visa),
-                'isChoosen': false,
-              })
-          .toList();
+      try {
+        _payments = data[1]['data']['cards']
+            .map<Map<String, dynamic>>((val) => {
+                  'cash': val['id'] == 0 ? true : false,
+                  'card': PaymentMethod(
+                      id: val['id'].toString(),
+                      // cardCcv: val['secure_code'],
+                      cardNumber: val['card_number'],
+
+                      // expDate: val['expire_date'],
+                      //  DateTime(
+                      //     int.parse(
+                      //       ("${val['expire_date'][3]}${val['expire_date'][4]}"),
+                      //     ),
+                      //     int.parse(
+                      //       ("${val['expire_date'][0]}${val['expire_date'][1]}"),
+                      //     )),
+                      type: val['id'] == 0
+                          ? PaymentType.Cash
+                          : val['card_type'] == 0
+                              ? PaymentType.MasterCard
+                              : PaymentType.Visa),
+                  'isChoosen': val['active'] == 1 ? true : false,
+                })
+            .toList();
+        activeCardId = data[1]['active'].toString();
+      } catch (e) {
+        print("EXCEPTION CARD $e");
+      }
     }
   }
 }

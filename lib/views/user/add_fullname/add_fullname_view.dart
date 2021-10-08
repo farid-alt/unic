@@ -1,26 +1,27 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
 import 'package:unic_app/endpoints.dart';
 import 'package:unic_app/translates.dart';
+import 'package:unic_app/views/user/add_fullname/add_fullname_viewmodel.dart';
 import 'package:unic_app/views/user/enter%20promo/enter_promo_viewmodel.dart';
+import 'package:unic_app/views/user/main_wrapper/main_wrapper_view.dart';
 import 'package:unic_app/views/user/promotions_page/promotions_view.dart';
 
-class EnterPromoView extends StatefulWidget {
+class AddFullnameView extends StatefulWidget {
   @override
-  _EnterPromoViewState createState() => _EnterPromoViewState();
+  _AddFullnameViewState createState() => _AddFullnameViewState();
 }
 
-class _EnterPromoViewState extends State<EnterPromoView> {
+class _AddFullnameViewState extends State<AddFullnameView> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    TextEditingController _textController = TextEditingController();
+    // TextEditingController _textController = TextEditingController();
 
-    return ViewModelBuilder<EnterPromoViewModel>.reactive(
+    return ViewModelBuilder<AddFullnameViewModel>.reactive(
       builder: (context, model, child) => Scaffold(
         backgroundColor: Colors.white,
         body: Padding(
@@ -28,12 +29,12 @@ class _EnterPromoViewState extends State<EnterPromoView> {
               vertical: size.height / (812 / 60),
               horizontal: size.width / (375 / 16)),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              buildTopSide(),
+              // buildTopSide(),
               SizedBox(height: size.height / (812 / 32)),
-              AutoSizeText('${kMenuTranslates['enter_code2'][LANGUAGE]}',
+              AutoSizeText('Enter your fullname',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: kTextSecondaryColor,
@@ -44,11 +45,11 @@ class _EnterPromoViewState extends State<EnterPromoView> {
                 autofocus: false,
                 //TODO: label text ui issue
                 onChanged: (val) {
-                  model.enteredPromo = val;
+                  model.justNotify();
                 },
-                controller: _textController,
+                controller: model.fullnameController,
                 decoration: InputDecoration(
-                  labelText: '${kMenuTranslates['promo_code'][LANGUAGE]}',
+                  labelText: 'Fullname',
                   // floatingLabelBehavior: FloatingLabelBehavior.auto,
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -59,20 +60,15 @@ class _EnterPromoViewState extends State<EnterPromoView> {
               PrimaryButton(
                   function: () async {
                     //TODO: promocode validation
-
-                    final response = await model.sendPromo();
-                    if (response == 200) {
+                    if (model.fullnameController.text.isNotEmpty) {
+                      model.addFullname();
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => PromotionsView()));
-                    } else {
-                      Fluttertoast.showToast(
-                          msg: 'Check promo code again',
-                          gravity: ToastGravity.CENTER);
+                              builder: (context) => MainWrapperView()));
                     }
                   },
-                  color: _textController.text.isNotEmpty
+                  color: model.fullnameController.text.isNotEmpty
                       ? kPrimaryColor
                       : kTextSecondaryColor,
                   size: size,
@@ -82,7 +78,7 @@ class _EnterPromoViewState extends State<EnterPromoView> {
           ),
         ),
       ),
-      viewModelBuilder: () => EnterPromoViewModel(),
+      viewModelBuilder: () => AddFullnameViewModel(),
     );
   }
 

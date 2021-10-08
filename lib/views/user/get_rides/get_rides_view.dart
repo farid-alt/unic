@@ -8,21 +8,26 @@ class GetRidesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return ViewModelBuilder<GetRidesViewModel>.nonReactive(
+    return ViewModelBuilder<GetRidesViewModel>.reactive(
         builder: (context, model, child) => Scaffold(
               backgroundColor: kPrimaryColor,
-              body: Column(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: PrimaryColorBox(size: size),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: WhiteBox(size: size),
-                  )
-                ],
-              ),
+              body: FutureBuilder(
+                  future: model.profileFuture,
+                  builder: (context, snapshot) {
+                    print(snapshot.error);
+                    return Column(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: PrimaryColorBox(size: size),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: WhiteBox(size: size),
+                        )
+                      ],
+                    );
+                  }),
             ),
         viewModelBuilder: () => GetRidesViewModel());
   }

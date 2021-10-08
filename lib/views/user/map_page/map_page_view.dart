@@ -12,8 +12,10 @@ import 'package:kf_drawer/kf_drawer.dart';
 import 'package:location/location.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/components/map_page/crossText.dart';
 import 'package:unic_app/components/primary_button.dart';
 import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
 import 'package:unic_app/views/user/payments_choose_for_trip/payments_view.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_viewmodel.dart';
@@ -21,6 +23,7 @@ import 'package:unic_app/views/user/select_adress/select_adress_view.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MapPageView extends KFDrawerContent {
   @override
@@ -34,62 +37,75 @@ class _MapPageViewState extends State<MapPageView> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return ViewModelBuilder<MapPageViewModel>.reactive(
-      builder: (context, MapPageViewModel model, child) => Scaffold(
-          // backgroundColor: kPrimaryColor,
-          body: Container(
-        child: Stack(
-          children: [
-            Container(
-              child: FutureBuilder<LocationData>(
-                future: model.findMyLocation(),
-                builder: (context, snapshot) {
-                  return GoogleMap(
-                    polylines: Set<Polyline>.of(model.polylines.values),
-                    onMapCreated: (controller) {
-                      model.mapController = controller;
-                      // _controller.complete(controller);
-                    },
-                    markers: model.markers.values.toSet(),
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                            snapshot.data.latitude, snapshot.data.longitude),
-                        zoom: 15),
-                  );
-                },
-              ),
-            ),
-            if (model.status == StatusOfMap.SearchingDriver)
-              Overlay.show(context),
-            Positioned(
-              left: size.width / (375 / 16),
-              top: size.height / (815 / 60),
-              child: InkWell(
-                onTap: widget.onMenuPressed,
-                child: Container(
-                  height: size.width / (375 / 40),
-                  width: size.width / (375 / 40),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: kPrimaryColor),
-                  child: Center(
-                    child: SvgPicture.asset('assets/map_page/burger.svg'),
-                  ),
+      builder: (context, MapPageViewModel model, child) => FutureBuilder(
+          future: model.currentStatusFuture,
+          builder: (context, snapshot) {
+            return WillPopScope(
+              onWillPop: () {
+                return Future.value(false);
+              },
+              child: Scaffold(
+                  // backgroundColor: kPrimaryColor,
+                  body: Container(
+                child: Stack(
+                  children: [
+                    Container(
+                      child: FutureBuilder<LocationData>(
+                        future: model.findMyLocation(),
+                        builder: (context, snapshot) {
+                          return GoogleMap(
+                            polylines: Set<Polyline>.of(model.polylines.values),
+                            onMapCreated: (controller) {
+                              model.mapController = controller;
+                              // _controller.complete(controller);
+                            },
+                            markers: model.markers.values.toSet(),
+                            myLocationEnabled: true,
+                            myLocationButtonEnabled: false,
+                            initialCameraPosition: CameraPosition(
+                                target: LatLng(snapshot.data.latitude,
+                                    snapshot.data.longitude),
+                                zoom: 15),
+                          );
+                        },
+                      ),
+                    ),
+                    if (model.status == StatusOfMap.SearchingDriver)
+                      Overlay.show(context),
+                    Positioned(
+                      left: size.width / (375 / 16),
+                      top: size.height / (815 / 60),
+                      child: InkWell(
+                        onTap: widget.onMenuPressed,
+                        child: Container(
+                          height: size.width / (375 / 40),
+                          width: size.width / (375 / 40),
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle, color: kPrimaryColor),
+                          child: Center(
+                            child:
+                                SvgPicture.asset('assets/map_page/burger.svg'),
+                          ),
+                        ),
+                      ),
+                    ),
+                    model.status == StatusOfMap.SearchingDriver
+                        ? CancelOrderMapPage(size: size)
+                        : model.status == StatusOfMap.ApplyYourTrip
+                            ? SelectTripOptions(size: size)
+                            : model.status == StatusOfMap.DriverComes
+                                ? DriverIsComing(size: size)
+                                : model.status == StatusOfMap.YouAreOnWay
+                                    ? YouAreOnWay(size: size)
+                                    : model.status == StatusOfMap.TripFinished
+                                        ? YourTripEnded(
+                                            model: model, size: size)
+                                        : StartMapBottom(size: size)
+                  ],
                 ),
-              ),
-            ),
-            model.status == StatusOfMap.SearchingDriver
-                ? CancelOrderMapPage(size: size)
-                : model.status == StatusOfMap.ApplyYourTrip
-                    ? SelectTripOptions(size: size)
-                    : model.status == StatusOfMap.DriverComes
-                        ? DriverIsComing(size: size)
-                        : model.status == StatusOfMap.YouAreOnWay
-                            ? YouAreOnWay(size: size)
-                            : StartMapBottom(size: size)
-          ],
-        ),
-      )),
+              )),
+            );
+          }),
       viewModelBuilder: () => MapPageViewModel(),
     );
   }
@@ -111,8 +127,10 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
           alignment: Alignment.bottomCenter,
           child: AnimatedContainer(
             height: model.detailsOpenedOnWay
-                ? size.height / 1.3
-                : size.height / 2.25,
+                ? size.height / 1.3 +
+                    (model.adresses.length - 1) * size.height / (815 / 80)
+                : size.height / 2.25 +
+                    (model.adresses.length - 1) * size.height / (815 / 80),
             color: Colors.white,
             duration: Duration(milliseconds: 300),
             child: Column(
@@ -162,7 +180,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        'Your driver is ${model.driver.name}',
+                                        '${kOrderTranslates['your_driver_is'][LANGUAGE]} ${model.driver.fullname}',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
@@ -209,7 +227,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                           )
                         : Center(
                             child: AutoSizeText(
-                              '${model.timeToArrivetToDestination} min left',
+                              '${model.timeToArrivetToDestination} ${kOrderTranslates['min_left'][LANGUAGE]}',
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -229,7 +247,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                       Align(
                         alignment: Alignment.centerLeft,
                         child: AutoSizeText(
-                          'Your trip',
+                          '${kOrderTranslates['your_trip'][LANGUAGE]}',
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -267,14 +285,16 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         AutoSizeText(
-                                          '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}',
+                                          model.firstAdress.adress == null
+                                              ? '${model.firstAdress.nameOfPlace}'
+                                              : '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}',
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                               color: kTextPrimary),
                                         ),
                                         AutoSizeText(
-                                          'Pick up',
+                                          '${kOrderTranslates['pick_up'][LANGUAGE]}',
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -294,14 +314,16 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
+                                        model.adresses[i].adress == null
+                                            ? '${model.adresses[i].nameOfPlace}'
+                                            : '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
                                             color: kTextPrimary),
                                       ),
                                       AutoSizeText(
-                                        'Drop off',
+                                        '${kOrderTranslates['drop_off'][LANGUAGE]}',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
@@ -349,7 +371,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
               child: PrimaryButton(
                 function: () {
                   model.detailsOpenedOnWay = !model.detailsOpenedOnWay;
-                  model.drawPolyline();
+                  // model.drawPolyline();
                   // Navigator.push(
                   //   context,
                   //   MaterialPageRoute(
@@ -362,7 +384,9 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                 },
                 color: kPrimaryColor,
                 textColor: Colors.white,
-                title: model.detailsOpenedOnWay ? 'Cancel' : 'Order details',
+                title: model.detailsOpenedOnWay
+                    ? '${kGeneralTranslates['cancel'][LANGUAGE]}'
+                    : '${kGeneralTranslates['details'][LANGUAGE]}',
                 size: size,
               ),
             ),
@@ -387,180 +411,185 @@ class _YourTripEndedState extends State<YourTripEnded> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          color: Colors.white,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: widget.size.height / (815 / 30),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: widget.size.width / (375 / 16)),
-                  child: Column(
+    return Container(
+      height: widget.size.height,
+      color: Colors.white,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: widget.size.height / (815 / 30),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: widget.size.width / (375 / 16)),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: SvgPicture.asset(
-                              'assets/map_page/close_square.svg',
-                              color: kPrimaryColor,
-                              width: 20,
-                              height: 20,
-                            ),
-                          ),
-                          AutoSizeText(
-                            'Ride completed!',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w700),
-                          ),
-                          SvgPicture.asset(
-                            'assets/close_square.svg',
-                            color: kPrimaryColor,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: widget.size.height / (815 / 30)),
-                      EndTripDriverContainer(
-                          size: widget.size, model: widget.model),
-                      SizedBox(height: widget.size.height / (815 / 70)),
-                      AutoSizeText(
-                        'How was your trip?',
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: kTextPrimary),
-                      ),
-                      SizedBox(height: widget.size.height / (815 / 10)),
-                      Container(
-                        width: widget.size.width / (375 / 288),
-                        child: AutoSizeText(
-                          'Help us improve our services and your experience by rating this trip.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              height: 1.5,
-                              color: kTextSecondaryColor,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                      SizedBox(height: widget.size.height / (815 / 16)),
-                      RatingBar(
-                        allowHalfRating: false,
-                        itemSize: widget.size.width / (375 / 40),
-                        itemPadding: EdgeInsets.only(
-                            right: widget.size.width / (375 / 8)),
-                        onRatingUpdate: (value) {
-                          widget.model.ratingToTrip = value;
+                      InkWell(
+                        onTap: () {
+                          widget.model.status = StatusOfMap.Start;
+                          // Navigator.pushReplacement(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => MapPageView()));
                         },
-                        itemCount: 5,
-                        ratingWidget: RatingWidget(
-                          full: SvgPicture.asset(
-                            'assets/map_page/star.svg',
-                            color: kPrimaryColor,
-                          ),
-                          half: Icon(
-                            Icons.star_half,
-                            color: kPrimaryColor,
-                          ),
-                          empty: SvgPicture.asset(
-                            'assets/map_page/starWithBorder.svg',
-                            color: kPrimaryColor,
-                          ),
+                        child: SvgPicture.asset(
+                          'assets/map_page/close_square.svg',
+                          color: kPrimaryColor,
+                          width: 20,
+                          height: 20,
                         ),
                       ),
-                      SizedBox(
-                        height: widget.size.height / (815 / 48),
-                      ),
                       AutoSizeText(
-                        'Tip',
+                        '${kOrderTranslates['ride_completed'][LANGUAGE]}',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w700),
                       ),
-                      SizedBox(
-                        height: widget.size.height / (815 / 16),
+                      SvgPicture.asset(
+                        'assets/close_square.svg',
+                        color: kPrimaryColor,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: List.generate(
-                          4,
-                          (index) => InkWell(
-                            onTap: () {
-                              widget.model.tipSelectedIndex = index;
-                              setState(() {});
-                            },
-                            child: Container(
-                              width: widget.size.width / (375 / 80),
-                              height: widget.size.height / (815 / 37),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
+                    ],
+                  ),
+                  SizedBox(height: widget.size.height / (815 / 30)),
+                  EndTripDriverContainer(
+                      size: widget.size, model: widget.model),
+                  SizedBox(height: widget.size.height / (815 / 70)),
+                  AutoSizeText(
+                    '${kOrderTranslates['how_was_trip'][LANGUAGE]}',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: kTextPrimary),
+                  ),
+                  SizedBox(height: widget.size.height / (815 / 10)),
+                  Container(
+                    width: widget.size.width / (375 / 288),
+                    child: AutoSizeText(
+                      '${kOrderTranslates['help_us'][LANGUAGE]}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          height: 1.5,
+                          color: kTextSecondaryColor,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  SizedBox(height: widget.size.height / (815 / 16)),
+                  RatingBar(
+                    allowHalfRating: false,
+                    itemSize: widget.size.width / (375 / 40),
+                    itemPadding:
+                        EdgeInsets.only(right: widget.size.width / (375 / 8)),
+                    onRatingUpdate: (value) {
+                      widget.model.ratingToTrip = value;
+                    },
+                    itemCount: 5,
+                    ratingWidget: RatingWidget(
+                      full: SvgPicture.asset(
+                        'assets/map_page/star.svg',
+                        color: kPrimaryColor,
+                      ),
+                      half: Icon(
+                        Icons.star_half,
+                        color: kPrimaryColor,
+                      ),
+                      empty: SvgPicture.asset(
+                        'assets/map_page/starWithBorder.svg',
+                        color: kPrimaryColor,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: widget.size.height / (815 / 48),
+                  ),
+                  AutoSizeText(
+                    '${kOrderTranslates['tip'][LANGUAGE]}',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(
+                    height: widget.size.height / (815 / 16),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(
+                      4,
+                      (index) => InkWell(
+                        onTap: () {
+                          widget.model.tipSelectedIndex = index;
+                          setState(() {});
+                        },
+                        child: Container(
+                          width: widget.size.width / (375 / 80),
+                          height: widget.size.height / (815 / 37),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: widget.model.tipSelectedIndex == index
+                                  ? kPrimaryColor
+                                  : Colors.transparent,
+                              border:
+                                  Border.all(width: 1, color: kPrimaryColor)),
+                          child: Center(
+                            child: AutoSizeText(
+                              '${index * 5} %',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                   color: widget.model.tipSelectedIndex == index
-                                      ? kPrimaryColor
-                                      : Colors.transparent,
-                                  border: Border.all(
-                                      width: 1, color: kPrimaryColor)),
-                              child: Center(
-                                child: AutoSizeText(
-                                  '${index * 5} %',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color:
-                                          widget.model.tipSelectedIndex == index
-                                              ? Colors.white
-                                              : kPrimaryColor),
-                                ),
-                              ),
+                                      ? Colors.white
+                                      : kPrimaryColor),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: widget.size.height / (815 / 48),
-                      ),
-                      Container(
-                        height: widget.size.height / (815 / 65),
-                        width: widget.size.width / (375 / 343),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Color(0xffF4F7FA),
-                        ),
-                        child: Center(
-                          child: TextField(
-                            controller: _controller,
-                            style: TextStyle(fontSize: 15, color: kTextPrimary),
-                            decoration: InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: widget.size.width / (375 / 16)),
-                                border: InputBorder.none,
-                                hintText: 'Write your comment',
-                                hintStyle: TextStyle(
-                                    fontSize: 15, color: kTextSecondaryColor)),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: widget.size.height / (815 / 60),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                PrimaryButton(
-                  size: widget.size,
-                  textColor: Colors.white,
-                  title: 'Done',
-                  color: kPrimaryColor,
-                  function: () {},
-                )
-              ],
+                  SizedBox(
+                    height: widget.size.height / (815 / 48),
+                  ),
+                  Container(
+                    height: widget.size.height / (815 / 65),
+                    width: widget.size.width / (375 / 343),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Color(0xffF4F7FA),
+                    ),
+                    child: Center(
+                      child: TextField(
+                        onChanged: (val) {
+                          widget.model.comment = val;
+                        },
+                        controller: _controller,
+                        style: TextStyle(fontSize: 15, color: kTextPrimary),
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: widget.size.width / (375 / 16)),
+                            border: InputBorder.none,
+                            hintText:
+                                '${kOrderTranslates['write_your_comment'][LANGUAGE]}',
+                            hintStyle: TextStyle(
+                                fontSize: 15, color: kTextSecondaryColor)),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: widget.size.height / (815 / 60),
+                  ),
+                ],
+              ),
             ),
-          ),
+            PrimaryButton(
+              size: widget.size,
+              textColor: Colors.white,
+              title: '${kGeneralTranslates['done'][LANGUAGE]}',
+              color: kPrimaryColor,
+              function: () {
+                widget.model.sendReview();
+              },
+            )
+          ],
         ),
       ),
     );
@@ -614,7 +643,7 @@ class EndTripDriverContainer extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AutoSizeText(
-                      'Your driver is ${model.driver.name}',
+                      '${kOrderTranslates['your_driver_is'][LANGUAGE]} ${model.driver.fullname}',
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -640,7 +669,8 @@ class EndTripDriverContainer extends StatelessWidget {
                       children: [
                         //TODO Change to driver vehicle
                         SvgPicture.asset(
-                            true ? 'assets/moped.svg' : 'assets/moto.svg'),
+                          true ? 'assets/moped.svg' : 'assets/moto.svg',
+                        ),
                         SizedBox(
                           width: size.width / (375 / 8),
                         ),
@@ -657,7 +687,7 @@ class EndTripDriverContainer extends StatelessWidget {
                 ),
               ],
             ),
-            AutoSizeText('5 azn',
+            AutoSizeText('${model.costOfTripPromo} azn',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -684,7 +714,11 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
         Align(
           alignment: Alignment.bottomCenter,
           child: AnimatedContainer(
-            height: model.detailsOpened ? size.height / 1.4 : size.height / 2.1,
+            height: model.detailsOpened
+                ? size.height / 1.3 +
+                    (model.adresses.length - 1) * size.height / (815 / 110)
+                : size.height / 2.1 +
+                    (model.adresses.length - 1) * size.height / (815 / 110),
             color: Colors.white,
             duration: Duration(milliseconds: 300),
             child: Column(
@@ -718,8 +752,8 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                               backgroundColor: Colors.white,
                               child: CircleAvatar(
                                 radius: size.width / (375 / 30),
-                                backgroundImage:
-                                    NetworkImage(model.driver.profilePicAdress),
+                                backgroundImage: NetworkImage(
+                                    "https://unikeco.az${model.driver.profilePicAdress}"),
                               ),
                             ),
                             SizedBox(
@@ -728,12 +762,17 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                AutoSizeText(
-                                  'Your driver is ${model.driver.name}',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
+                                Container(
+                                  width: size.width / (375 / 150),
+                                  child: AutoSizeText(
+                                    '${kOrderTranslates['your_driver_is'][LANGUAGE]} ${model.driver.fullname}',
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                        height: 1.4,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  ),
                                 ),
                                 SizedBox(
                                   height: size.height / (815 / 4),
@@ -800,7 +839,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                               height: size.height / (815 / 17),
                             ),
                             InkWell(
-                              onTap: () => launch(model.driver.number),
+                              onTap: () => launch("tel:${model.driver.number}"),
                               child: Container(
                                   width: size.width / (375 / 88),
                                   height: size.height / (815 / 36),
@@ -810,7 +849,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                   ),
                                   child: Center(
                                     child: AutoSizeText(
-                                      'Call',
+                                      '${kOrderTranslates['call'][LANGUAGE]}',
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
@@ -835,7 +874,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                       Align(
                         alignment: Alignment.centerLeft,
                         child: AutoSizeText(
-                          'Your trip',
+                          '${kOrderTranslates['your_trip'][LANGUAGE]}',
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -873,14 +912,16 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         AutoSizeText(
-                                          '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}',
+                                          model.firstAdress.adress != null
+                                              ? '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}'
+                                              : '${model.firstAdress.nameOfPlace}',
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                               color: kTextPrimary),
                                         ),
                                         AutoSizeText(
-                                          'Pick up',
+                                          '${kOrderTranslates['pick_up'][LANGUAGE]}',
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -900,14 +941,16 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
+                                        model.adresses[i].adress == null
+                                            ? "${model.adresses[i].nameOfPlace}"
+                                            : '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
                                             color: kTextPrimary),
                                       ),
                                       AutoSizeText(
-                                        'Drop off',
+                                        '${kOrderTranslates['drop_off'][LANGUAGE]}',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
@@ -960,10 +1003,10 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                   Container(
                     width: size.width / (375 / 167),
                     child: PrimaryButton2(
-                        function: () => model.status = StatusOfMap.YouAreOnWay,
+                        function: () => model.cancelOrder(),
                         color: kTextSecondaryColor,
                         size: size,
-                        title: 'Cancel',
+                        title: '${kGeneralTranslates['cancel'][LANGUAGE]}',
                         textColor: Colors.white),
                   ),
                   Container(
@@ -973,7 +1016,9 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                             model.detailsOpened = !model.detailsOpened,
                         color: kPrimaryColor,
                         size: size,
-                        title: model.detailsOpened ? 'Close' : 'Details',
+                        title: model.detailsOpened
+                            ? '${kGeneralTranslates['close'][LANGUAGE]}'
+                            : '${kGeneralTranslates['details'][LANGUAGE]}',
                         textColor: Colors.white),
                   )
                 ],
@@ -1023,7 +1068,8 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
-        height: size.height / (815 / 480),
+        height: size.height / (815 / 480) +
+            (model.adresses.length - 1) * size.height / (815 / 70),
         width: double.infinity,
         decoration: BoxDecoration(
             color: Colors.white,
@@ -1143,7 +1189,7 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                           size: size,
                           icon: 'assets/moped.svg',
                           selected: model.selectedVehicle == Vehicle.Moped,
-                          text: 'Moped'),
+                          text: '${kOrderTranslates['moped'][LANGUAGE]}'),
                       MotoOrMopedContainer(
                           onTap: () {
                             model.selectedVehicle = Vehicle.Motorcycle;
@@ -1152,7 +1198,7 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                           size: size,
                           icon: 'assets/moto.svg',
                           selected: model.selectedVehicle == Vehicle.Motorcycle,
-                          text: 'Motorcycle'),
+                          text: '${kOrderTranslates['motorcycle'][LANGUAGE]}'),
                     ],
                   ),
                   SizedBox(
@@ -1168,12 +1214,22 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                   ),
                   PrimaryButton(
                     size: size,
-                    title: 'Apply',
+                    title: '${kGeneralTranslates['apply'][LANGUAGE]}',
                     color: kPrimaryColor,
                     textColor: Colors.white,
                     function: () {
-                      // model.status = StatusOfMap.SearchingDriver;
-                      model.createOrder(createEditId: 0);
+                      model.createOrder(createEditId: 0).then((val) {
+                        if (val[1]['data'] == false) {
+                          Fluttertoast.showToast(
+                              msg: 'Yaxınlıqda boş mototaksi yoxdur',
+                              timeInSecForIosWeb: 2,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              gravity: ToastGravity.CENTER);
+                        } else {
+                          model.status = StatusOfMap.SearchingDriver;
+                        }
+                      });
                     },
                   ),
                 ],
@@ -1211,7 +1267,7 @@ class PaymentType extends ViewModelWidget<MapPageViewModel> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               AutoSizeText(
-                'Payment method',
+                '${kOrderTranslates['payment_method'][LANGUAGE]}',
                 style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -1286,7 +1342,8 @@ class ChangeDestination extends ViewModelWidget<MapPageViewModel> {
               SizedBox(
                 width: size.width / (375 / 10),
               ),
-              AutoSizeText('Change destination',
+              AutoSizeText(
+                  '${kOrderTranslates['change_destination'][LANGUAGE]}',
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -1324,18 +1381,41 @@ class TripInfoContainer extends ViewModelWidget<MapPageViewModel> {
               DetailsAboutTripRow(
                 size: size,
                 icon: 'assets/map_page/Location.svg',
-                text: '${model.distanceOfTrip} km',
+                text: '${double.parse(model.distanceOfTrip) / 1000} km',
               ),
               DetailsAboutTripRow(
                 size: size,
                 icon: 'assets/map_page/time_square.svg',
                 text: '${model.timeOfTrip} min',
               ),
-              DetailsAboutTripRow(
-                size: size,
-                icon: 'assets/map_page/rectangle_money.svg',
-                text: '${model.costOfTrip} AZN',
+              Row(
+                children: [
+                  SvgPicture.asset(
+                    'assets/map_page/rectangle_money.svg',
+                    color: kTextSecondaryColor,
+                  ),
+                  SizedBox(
+                    width: size.width / (375 / 8),
+                  ),
+                  model.costOfTrip == model.costOfTripPromo
+                      ? AutoSizeText(
+                          '${model.costOfTrip}',
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: kTextPrimary,
+                              fontWeight: FontWeight.w700),
+                        )
+                      : NewPriceRowSmall(
+                          size: size,
+                          promoPrice: model.costOfTripPromo,
+                          tarifPrice: model.costOfTrip)
+                ],
               ),
+              // DetailsAboutTripRow(
+              //   size: size,
+              //   icon: 'assets/map_page/rectangle_money.svg',
+              //   text: '${model.costOfTrip} AZN',
+              // ),
             ],
           ),
         ));
@@ -1463,7 +1543,7 @@ class CancelOrderMapPage extends ViewModelWidget<MapPageViewModel> {
             model.status = StatusOfMap.DriverComes;
           },
           color: kPrimaryColor,
-          title: 'Cancel order search',
+          title: '${kOrderTranslates['cancel_order_search'][LANGUAGE]}',
           textColor: Colors.white,
         ),
       ),
@@ -1535,11 +1615,23 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
                     if (value[0] == 'OK') {
                       try {
                         await model.animateToMyPosition();
-                        model.status = StatusOfMap.ApplyYourTrip;
                         model.firstAdress = value[1];
                         model.adresses = value[2];
-                        print(TOKEN);
-                        model.calculateOrder();
+                        final val = await model.calculateOrder();
+                        print("VALUE FROM $val");
+                        if (val == 200) {
+                          model.status = StatusOfMap.ApplyYourTrip;
+
+                          print(TOKEN);
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: 'Yaxınlıqda boş mototaksi yoxdur',
+                              timeInSecForIosWeb: 2,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              gravity: ToastGravity.CENTER);
+                        }
+
                         print('Done');
                       } catch (e) {
                         print(e);
@@ -1562,26 +1654,79 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
             SizedBox(
               height: size.height / (815 / 24),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MapPageBigMapPage(
-                    size: size,
-                    iconPath: 'assets/map_page/Home.svg',
-                    title: 'Home',
-                    function: () {}),
-                MapPageBigMapPage(
-                    size: size,
-                    iconPath: 'assets/map_page/Work.svg',
-                    title: 'Work',
-                    function: () {}),
-                MapPageBigMapPage(
-                    size: size,
-                    iconPath: 'assets/map_page/Location.svg',
-                    title: 'Last',
-                    function: () {}),
-              ],
-            ),
+            FutureBuilder(
+                future: model.getProfileFuture,
+                builder: (context, snapshot) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      MapPageBigMapPage(
+                          size: size,
+                          iconPath: 'assets/map_page/Home.svg',
+                          title: kMapPageTranslates['home'][LANGUAGE],
+                          function: () {
+                            // model.status = StatusOfMap.TripFinished;
+                            if (model.user.homeAdress.nameOfPlace == null ||
+                                model.user.homeAdress.nameOfPlace == '') {
+                              //TODO TOAST
+                              print('nullout');
+                              Fluttertoast.showToast(
+                                msg: kMapPageTranslates['no_info'][LANGUAGE],
+                                gravity: ToastGravity.CENTER,
+                              );
+                            } else {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SelectAdressView(
+                                          firstAdress: model.user.homeAdress)));
+                            }
+                          }),
+                      MapPageBigMapPage(
+                          size: size,
+                          iconPath: 'assets/map_page/Work.svg',
+                          title: kMapPageTranslates['work'][LANGUAGE],
+                          function: () {
+                            if (model.user.workAdress.nameOfPlace == null ||
+                                model.user.workAdress.nameOfPlace == '') {
+                              //TODO TOAST
+                              print('nullout');
+                              Fluttertoast.showToast(
+                                msg: kMapPageTranslates['no_info'][LANGUAGE],
+                                gravity: ToastGravity.CENTER,
+                              );
+                            } else {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SelectAdressView(
+                                          firstAdress: model.user.workAdress)));
+                            }
+                          }),
+                      MapPageBigMapPage(
+                          size: size,
+                          iconPath: 'assets/map_page/Location.svg',
+                          title: kMapPageTranslates['last_adress'][LANGUAGE],
+                          function: () {
+                            if (model.user.lastAdress.nameOfPlace == null ||
+                                model.user.lastAdress.nameOfPlace == '') {
+                              //TODO TOAST
+                              print('nullout');
+                              Fluttertoast.showToast(
+                                msg: kMapPageTranslates['no_info'][LANGUAGE],
+                                gravity: ToastGravity.CENTER,
+                              );
+                            } else {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SelectAdressView(
+                                          firstAdress: model.user.lastAdress)));
+                            }
+                          }),
+                    ],
+                  );
+                }),
             SizedBox(
               height: size.height / (815 / 50),
             ),
@@ -1645,7 +1790,7 @@ class WhereToGo extends StatelessWidget {
               width: size.width / (375 / 19),
             ),
             AutoSizeText(
-              'Where to?',
+              kMapPageTranslates['where_to'][LANGUAGE],
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,

@@ -4,6 +4,8 @@ import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/intro/text_component.dart';
 import 'package:unic_app/components/intro/upper_part.dart';
 import 'package:unic_app/components/primary_button.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/onboarding/onboarding_viewmodel.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:unic_app/views/user/code_page/code_page_view.dart';
@@ -12,6 +14,7 @@ class OnboardingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     return ViewModelBuilder.reactive(
         builder: ((context, OnboardingViewModel model, child) {
           return Scaffold(
@@ -39,13 +42,15 @@ class OnboardingView extends StatelessWidget {
                             children: [
                               IntroTextComponent(
                                 size: size,
-                                text: model.text1,
-                                title: model.title1,
+                                text: kOnboardingScreen['description1']
+                                    [LANGUAGE],
+                                title: kOnboardingScreen['title1'][LANGUAGE],
                               ),
                               IntroTextComponent(
                                 size: size,
-                                text: model.text2,
-                                title: model.title2,
+                                text: kOnboardingScreen['description2']
+                                    [LANGUAGE],
+                                title: kOnboardingScreen['title2'][LANGUAGE],
                               ),
                             ],
                           ),
@@ -99,7 +104,9 @@ class OnboardingView extends StatelessWidget {
                           },
                           color: kPrimaryColor,
                           textColor: Colors.white,
-                          title: model.index == 0 ? 'Next' : 'Get started',
+                          title: model.index == 0
+                              ? "${kGeneralTranslates['next'][LANGUAGE]}"
+                              : "${kGeneralTranslates['get_started'][LANGUAGE]}",
                           size: size,
                         )
                       ],

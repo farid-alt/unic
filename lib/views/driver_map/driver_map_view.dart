@@ -7,6 +7,8 @@ import 'package:location/location.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/primary_button.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/driver/driver_profile_viewmodel.dart';
 import 'package:unic_app/views/driver_map/driver_map_viewmodel.dart';
 import 'package:unic_app/views/trip_ended/trip_ended_view.dart';
@@ -30,88 +32,131 @@ class _DriverMapViewState extends State<DriverMapView> {
     return ViewModelBuilder<DriverMapViewModel>.reactive(
       builder: (context, DriverMapViewModel model, child) => Scaffold(
           // backgroundColor: kPrimaryColor,
-          body: Container(
-        child: Stack(
-          children: [
-            Container(
-              child: FutureBuilder<LocationData>(
-                future: model.findMyLocation(),
-                builder: (context, snapshot) {
-                  return GoogleMap(
-                    polylines: Set<Polyline>.of(model.polylines.values),
-                    onMapCreated: (controller) {
-                      model.mapController = controller;
-                      // _controller.complete(controller);
-                    },
-                    markers: model.markers.values.toSet(),
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    initialCameraPosition: CameraPosition(
-                        target: LatLng(
-                            snapshot.data.latitude, snapshot.data.longitude),
-                        zoom: 15),
-                  );
-                },
-              ),
-            ),
-            // if (model.status == StatusOfMap.SearchingDriver)
-            //   Overlay.show(context),
-            Positioned(
-              left: size.width / (375 / 16),
-              top: size.height / (815 / 60),
-              child: InkWell(
-                onTap: widget.onMenuPressed,
-                child: Container(
-                  height: size.width / (375 / 40),
-                  width: size.width / (375 / 40),
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: kPrimaryColor),
-                  child: Center(
-                    child: SvgPicture.asset('assets/map_page/burger.svg'),
-                  ),
-                ),
-              ),
-            ),
-            model.status == StatusOfMapDriver.WaitinigForTrip
-                ? Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      height: size.height / (815 / 120),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15)),
-                        color: Colors.white,
-                      ),
-                      child: Center(
-                        child: PrimaryButton(
-                          function: () =>
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => DriverYourTripEnded(
-                              //               model: model,
-                              //               size: size,
-                              //             ))),
-                              model.status = StatusOfMapDriver.AcceptTrip,
-                          size: size,
-                          color: kPrimaryColor,
-                          textColor: Colors.white,
-                          title: 'Your trip will appear here',
+          body: FutureBuilder(
+              future: model.currentOrderFuture,
+              builder: (context, snapshot) {
+                return Container(
+                  child: Stack(
+                    children: [
+                      Container(
+                        child: FutureBuilder<LocationData>(
+                          future: model.findMyLocation(),
+                          builder: (context, snapshot) {
+                            return GoogleMap(
+                              polylines:
+                                  Set<Polyline>.of(model.polylines.values),
+                              onMapCreated: (controller) {
+                                model.mapController = controller;
+                                // _controller.complete(controller);
+                              },
+                              markers: model.markers.values.toSet(),
+                              myLocationEnabled: true,
+                              myLocationButtonEnabled: false,
+                              initialCameraPosition: CameraPosition(
+                                  target: LatLng(snapshot.data.latitude,
+                                      snapshot.data.longitude),
+                                  zoom: 15),
+                            );
+                          },
                         ),
                       ),
-                    ),
-                  )
-                : model.status == StatusOfMapDriver.AcceptTrip
-                    ? YouAreOnTheRoadToClient(size: size)
-                    : model.status == StatusOfMapDriver.SwipeToTakeCustomer
-                        ? TakeACustomer(size: size)
-                        : model.status == StatusOfMapDriver.SwipeToEndTrip
-                            ? YouAreOnRoadEndTrip(size: size)
-                            : Text('')
-          ],
-        ),
-      )),
+                      // if (model.status == StatusOfMap.SearchingDriver)
+                      //   Overlay.show(context),
+                      Positioned(
+                        left: size.width / (375 / 16),
+                        top: size.height / (815 / 60),
+                        child: InkWell(
+                          onTap: widget.onMenuPressed,
+                          child: Container(
+                            height: size.width / (375 / 40),
+                            width: size.width / (375 / 40),
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle, color: kPrimaryColor),
+                            child: Center(
+                              child: SvgPicture.asset(
+                                  'assets/map_page/burger.svg'),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (model.status ==
+                              StatusOfMapDriver.SwipeToTakeCustomer ||
+                          model.status == StatusOfMapDriver.SwipeToEndTrip)
+                        Positioned(
+                          right: size.width / (375 / 16),
+                          top: size.height / (815 / 60),
+                          child: InkWell(
+                            onTap: () => model.launchWaze(),
+                            child: Container(
+                              height: size.width / (375 / 40),
+                              width: size.width / (375 / 40),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle, color: kPrimaryColor),
+                              child: Center(
+                                child:
+                                    Icon(Icons.navigation, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      model.status == StatusOfMapDriver.WaitinigForTrip
+                          ? Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Switch(
+                                      value: model.online,
+                                      onChanged: (val) => model.online = val),
+                                  Container(
+                                    height: size.height / (815 / 120),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(15),
+                                          topRight: Radius.circular(15)),
+                                      color: Colors.white,
+                                    ),
+                                    child: Center(
+                                      child: PrimaryButton(
+                                        function: () =>
+                                            // Navigator.push(
+                                            //     context,
+                                            //     MaterialPageRoute(
+                                            //         builder: (context) => DriverYourTripEnded(
+                                            //               model: model,
+                                            //               size: size,
+                                            //             ))),
+
+                                            model.status =
+                                                StatusOfMapDriver.AcceptTrip,
+                                        size: size,
+                                        color: kPrimaryColor,
+                                        textColor: Colors.white,
+                                        title:
+                                            '${kOrderTranslates['your_trip_will'][LANGUAGE]}',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : model.status == StatusOfMapDriver.AcceptTrip
+                              ? SwipeToAccept(size: size)
+                              : model.status ==
+                                      StatusOfMapDriver.SwipeToTakeCustomer
+                                  ? TakeACustomer(size: size)
+                                  : model.status ==
+                                          StatusOfMapDriver.SwipeToEndTrip
+                                      ? YouAreOnRoadEndTrip(size: size)
+                                      : DriverYourTripEnded(
+                                          size: size,
+                                          model: model,
+                                        )
+                    ],
+                  ),
+                );
+              })),
       viewModelBuilder: () => DriverMapViewModel(),
     );
   }
@@ -124,6 +169,7 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
   }) : super(key: key);
 
   final Size size;
+  bool first = true;
   // bool accept = false;
   DragStartDetails startVerticalDragDetails;
   DragUpdateDetails updateVerticalDragDetails;
@@ -134,8 +180,8 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
       child: AnimatedContainer(
         duration: Duration(milliseconds: 100),
         height: model.detailsOpened
-            ? size.height / (815 / 460)
-            : size.height / (815 / 385),
+            ? size.height / (815 / 460) + (model.adresses.length - 1) * 80
+            : size.height / (815 / 385) + (model.adresses.length - 1) * 80,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(15), topRight: Radius.circular(15)),
@@ -211,7 +257,7 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                                 child: CircleAvatar(
                                   radius: size.width / (375 / 30),
                                   backgroundImage: NetworkImage(
-                                      model.customer.profilePicAdress),
+                                      "https://unikeco.az${model.customer.profilePicAdress}"),
                                 ),
                               ),
                               SizedBox(
@@ -221,12 +267,15 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  AutoSizeText(
-                                    'Your trip is with ${model.customer.name}',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white),
+                                  Container(
+                                    width: 150,
+                                    child: AutoSizeText(
+                                      '${kOrderTranslates['your_trip_is_with'][LANGUAGE]} ${model.customer.name}',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white),
+                                    ),
                                   ),
                                   SizedBox(
                                     height: size.height / (815 / 4),
@@ -262,7 +311,7 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                                     ),
                                     child: Center(
                                       child: AutoSizeText(
-                                        'Call',
+                                        '${kOrderTranslates['call'][LANGUAGE]}',
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 14,
@@ -290,7 +339,7 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: AutoSizeText(
-                      'Your trip',
+                      '${kOrderTranslates['your_trip'][LANGUAGE]}',
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -318,11 +367,13 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
                                 padding: EdgeInsets.only(
                                     top: size.height / (815 / 13)),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AutoSizeText(
                                       '${model.firstAdress.nameOfPlace}',
@@ -332,7 +383,7 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                                           color: kPrimaryColor),
                                     ),
                                     AutoSizeText(
-                                      'Pick-up',
+                                      '${kOrderTranslates['pick_up'][LANGUAGE]}',
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
@@ -348,6 +399,7 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                               padding: EdgeInsets.only(
                                   top: size.height / (815 / 40)),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AutoSizeText(
                                     '${model.adresses[i].nameOfPlace}',
@@ -357,7 +409,7 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                                         color: kPrimaryColor),
                                   ),
                                   AutoSizeText(
-                                    'Drop off',
+                                    '${kOrderTranslates['drop_off'][LANGUAGE]}',
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -398,14 +450,14 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                               EdgeInsets.only(left: size.width / (375 / 80)),
                           child: Center(
                             child: AutoSizeText(
-                              'Swipe to end trip',
+                              '${kOrderTranslates['swipe_to_end'][LANGUAGE]}',
                               style:
                                   TextStyle(fontSize: 20, color: Colors.white),
                             ),
                           ),
                         ),
                         AnimatedPositioned(
-                          left: model.endTrip ? 300 : 1,
+                          left: model.endTrip3 ? 300 : 1,
                           bottom: 0,
                           duration: Duration(milliseconds: 300),
                           child: GestureDetector(
@@ -413,12 +465,17 @@ class YouAreOnRoadEndTrip extends ViewModelWidget<DriverMapViewModel> {
                             //     StatusOfMapDriver
                             //         .TripEnded,
                             onPanUpdate: (details) {
-                              if (details.delta.dx > 0)
-                                model.endTrip = true;
-                              // print("Dragging in +X direction");
+                              if (details.delta.dx > 0 && first) {
+                                first = false;
+                                model.endTrip3 = true;
+                                Future.delayed(Duration(milliseconds: 500), () {
+                                  model.completeOrder();
 
-                              else
-                                model.endTrip = false;
+                                  model.status = StatusOfMapDriver.TripEnded;
+                                });
+                                // print("Dragging in +X direction");
+                              } else
+                                model.endTrip3 = false;
 
                               if (details.delta.dy > 0)
                                 print("Dragging in +Y direction");
@@ -501,19 +558,20 @@ class TripInfoContainerDriver extends ViewModelWidget<DriverMapViewModel> {
 }
 
 class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
-  const TakeACustomer({
+  TakeACustomer({
     Key key,
     @required this.size,
   }) : super(key: key);
 
   final Size size;
+  bool first = true;
 
   @override
   Widget build(BuildContext context, model) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
-        height: size.height / (815 / 380),
+        height: size.height / (815 / 380) + (model.adresses.length - 1) * 80,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(15), topRight: Radius.circular(15)),
@@ -550,8 +608,8 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                           backgroundColor: Colors.white,
                           child: CircleAvatar(
                             radius: size.width / (375 / 30),
-                            backgroundImage:
-                                NetworkImage(model.customer.profilePicAdress),
+                            backgroundImage: NetworkImage(
+                                "https://unikeco.az${model.customer.profilePicAdress}"),
                           ),
                         ),
                         SizedBox(
@@ -561,12 +619,15 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            AutoSizeText(
-                              'Your trip is with ${model.customer.name}',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
+                            Container(
+                              width: 150,
+                              child: AutoSizeText(
+                                '${kOrderTranslates['your_trip_is_with'][LANGUAGE]} ${model.customer.name}',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white),
+                              ),
                             ),
                             SizedBox(
                               height: size.height / (815 / 10),
@@ -602,7 +663,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                               ),
                               child: Center(
                                 child: AutoSizeText(
-                                  'Call',
+                                  '${kOrderTranslates['call'][LANGUAGE]}',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,
@@ -627,7 +688,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: AutoSizeText(
-                      'Your trip',
+                      '${kOrderTranslates['your_trip'][LANGUAGE]}',
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -660,6 +721,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                                 padding: EdgeInsets.only(
                                     top: size.height / (815 / 13)),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AutoSizeText(
                                       '${model.firstAdress.nameOfPlace}',
@@ -672,7 +734,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                                       height: size.height / (815 / 2),
                                     ),
                                     AutoSizeText(
-                                      'Pick-up',
+                                      '${kOrderTranslates['pick_up'][LANGUAGE]}',
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
@@ -688,6 +750,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                               padding: EdgeInsets.only(
                                   top: size.height / (815 / 40)),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AutoSizeText(
                                     '${model.adresses[i].nameOfPlace}',
@@ -700,7 +763,7 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                                     height: size.height / (815 / 2),
                                   ),
                                   AutoSizeText(
-                                    'Drop off',
+                                    '${kOrderTranslates['drop_off'][LANGUAGE]}',
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -732,14 +795,14 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                               EdgeInsets.only(left: size.width / (375 / 80)),
                           child: Center(
                             child: AutoSizeText(
-                              'Swipe to start trip',
+                              '${kOrderTranslates['swipe_to_start'][LANGUAGE]}',
                               style:
                                   TextStyle(fontSize: 20, color: Colors.white),
                             ),
                           ),
                         ),
                         AnimatedPositioned(
-                          left: model.endTrip ? 300 : 1,
+                          left: model.endTrip2 ? 300 : 1,
                           bottom: 0,
                           duration: Duration(milliseconds: 300),
                           child: GestureDetector(
@@ -747,13 +810,20 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
                             //     StatusOfMapDriver
                             //         .TripEnded,
                             onPanUpdate: (details) {
-                              if (details.delta.dx > 0)
-                                // model.endTrip = true;
-                                model.status = StatusOfMapDriver.SwipeToEndTrip;
+                              if (details.delta.dx > 0 && first) {
+                                model.endTrip2 = true;
+                                Future.delayed(Duration(milliseconds: 500), () {
+                                  model.pickUpCustomer();
+                                  // model.acceptOrder();
+                                  model.status =
+                                      StatusOfMapDriver.SwipeToEndTrip;
+                                });
+                                first = false;
+                              }
                               // print("Dragging in +X direction");
 
                               else
-                                model.endTrip = false;
+                                model.endTrip2 = false;
 
                               if (details.delta.dy > 0)
                                 print("Dragging in +Y direction");
@@ -790,211 +860,257 @@ class TakeACustomer extends ViewModelWidget<DriverMapViewModel> {
   }
 }
 
-class YouAreOnTheRoadToClient extends ViewModelWidget<DriverMapViewModel> {
-  const YouAreOnTheRoadToClient({
+class SwipeToAccept extends ViewModelWidget<DriverMapViewModel> {
+  SwipeToAccept({
     Key key,
     @required this.size,
   }) : super(key: key);
 
   final Size size;
+  bool first = true;
 
   @override
   Widget build(BuildContext context, model) {
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Container(
-        height: size.height / (815 / 275),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-          color: Colors.white,
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: size.width / (375 / 16),
-              vertical: size.height / (815 / 16)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Row(
+              Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                      // color: Colors.green,
+                      shape: BoxShape.circle,
+                      border: Border.all(width: 5, color: Colors.red)),
+                  child: Center(
+                    child: AutoSizeText(
+                      '${model.waitingToSwipe}',
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  )),
+            ],
+          ),
+          Container(
+            height:
+                size.height / (815 / 275) + (model.adresses.length - 1) * 80,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+              color: Colors.white,
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: size.width / (375 / 16),
+                  vertical: size.height / (815 / 16)),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: AutoSizeText(
-                          'Your trip',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: kTextPrimary),
-                        ),
-                      ),
-                      // SizedBox(
-                      //   height: size.height / (815 / 6),
-                      // ),
-                      Row(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              ElementSelectAdress(
-                                  size: size, color: kPrimaryColor),
-                              for (var i = 0; i < model.adresses.length; i++)
-                                ElementSelectAdress2(
-                                    size: size,
-                                    color: kPrimaryColor,
-                                    last: i != model.adresses.length - 1)
-                            ],
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: AutoSizeText(
+                              '${kOrderTranslates['your_trip'][LANGUAGE]}',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: kTextPrimary),
+                            ),
                           ),
-                          SizedBox(
-                            width: size.width / (375 / 14),
-                          ),
-                          Column(
+                          // SizedBox(
+                          //   height: size.height / (815 / 6),
+                          // ),
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        top: size.height / (815 / 13)),
-                                    child: Column(
-                                      children: [
-                                        AutoSizeText(
-                                          '${model.firstAdress.nameOfPlace}',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: kPrimaryColor),
-                                        ),
-                                        SizedBox(
-                                          height: size.height / (815 / 2),
-                                        ),
-                                        AutoSizeText(
-                                          'Pick-up',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xff969B9E)),
-                                        )
-                                      ],
-                                    ),
-                                  )
+                                  ElementSelectAdress(
+                                      size: size, color: kPrimaryColor),
+                                  for (var i = 0;
+                                      i < model.adresses.length;
+                                      i++)
+                                    ElementSelectAdress2(
+                                        size: size,
+                                        color: kPrimaryColor,
+                                        last: i != model.adresses.length - 1)
                                 ],
                               ),
-                              for (var i = 0; i < model.adresses.length; i++)
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      top: size.height / (815 / 40)),
-                                  child: Column(
+                              SizedBox(
+                                width: size.width / (375 / 14),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
                                     children: [
-                                      AutoSizeText(
-                                        '${model.adresses[i].nameOfPlace}',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: kPrimaryColor),
-                                      ),
-                                      SizedBox(
-                                        height: size.height / (815 / 2),
-                                      ),
-                                      AutoSizeText(
-                                        'Drop off',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xff969B9E)),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: size.height / (815 / 13)),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            AutoSizeText(
+                                              '${model.firstAdress.nameOfPlace}',
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: kPrimaryColor),
+                                            ),
+                                            SizedBox(
+                                              height: size.height / (815 / 2),
+                                            ),
+                                            AutoSizeText(
+                                              '${kOrderTranslates['pick_up'][LANGUAGE]}',
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xff969B9E)),
+                                            )
+                                          ],
+                                        ),
                                       )
                                     ],
                                   ),
-                                ),
+                                  for (var i = 0;
+                                      i < model.adresses.length;
+                                      i++)
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          top: size.height / (815 / 40)),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          AutoSizeText(
+                                            '${model.adresses[i].nameOfPlace}',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: kPrimaryColor),
+                                          ),
+                                          SizedBox(
+                                            height: size.height / (815 / 2),
+                                          ),
+                                          AutoSizeText(
+                                            '${kOrderTranslates['drop_off'][LANGUAGE]}',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color(0xff969B9E)),
+                                          )
+                                        ],
+                                      ),
+                                    ),
 
-                              // return Text('a');
+                                  // return Text('a');
+                                ],
+                              )
                             ],
-                          )
+                          ),
+                          SizedBox(
+                            height: size.height / (815 / 16),
+                          ),
                         ],
                       ),
-                      SizedBox(
-                        height: size.height / (815 / 16),
+                      InkWell(
+                        onTap: () => model.cancelOrder(type: '0'),
+                        child: AutoSizeText(
+                            '${kGeneralTranslates['cancel'][LANGUAGE]}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xffFF4E4E),
+                            )),
                       ),
                     ],
                   ),
-                  AutoSizeText('Cancel',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xffFF4E4E),
-                      )),
-                ],
-              ),
-              // SizedBox(
-              //   height: size.height / (815 / 10),
-              // ),
-              Container(
-                width: size.width,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: kPrimaryColor,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: size.width / (375 / 80)),
-                      child: Center(
-                        child: AutoSizeText(
-                          'Swipe to accept',
-                          style: TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ),
+                  // SizedBox(
+                  //   height: size.height / (815 / 10),
+                  // ),
+                  Container(
+                    width: size.width,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: kPrimaryColor,
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    AnimatedPositioned(
-                      left: model.endTrip ? 300 : 1,
-                      bottom: 0,
-                      duration: Duration(milliseconds: 300),
-                      child: GestureDetector(
-                        // onTap: () => model.status =
-                        //     StatusOfMapDriver
-                        //         .TripEnded,
-                        onPanUpdate: (details) {
-                          if (details.delta.dx > 0)
-                            // model.endTrip = true;
-                            model.status =
-                                StatusOfMapDriver.SwipeToTakeCustomer;
-                          // print("Dragging in +X direction");
-
-                          else
-                            model.endTrip = false;
-
-                          if (details.delta.dy > 0)
-                            print("Dragging in +Y direction");
-                          else
-                            print("Dragging in -Y direction");
-                        },
-                        child: Container(
-                          margin: EdgeInsets.only(right: 1, bottom: 1),
-                          width: size.width / (375 / 72),
-                          height: 57.5,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color: Colors.white),
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding:
+                              EdgeInsets.only(left: size.width / (375 / 80)),
                           child: Center(
-                            child: SvgPicture.asset(
-                                'assets/map_page/arrowRight.svg'),
+                            child: AutoSizeText(
+                              '${kOrderTranslates['swipe_to_accept'][LANGUAGE]}',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
                           ),
                         ),
-                      ),
+                        AnimatedPositioned(
+                          left: model.endTrip1 ? 300 : 1,
+                          bottom: 0,
+                          duration: Duration(milliseconds: 300),
+                          child: GestureDetector(
+                            // onTap: () => model.status =
+                            //     StatusOfMapDriver
+                            //         .TripEnded,
+                            onPanUpdate: (details) {
+                              if (details.delta.dx > 0 && first) {
+                                model.endTrip1 = true;
+
+                                Future.delayed(Duration(milliseconds: 500), () {
+                                  model.status =
+                                      StatusOfMapDriver.SwipeToTakeCustomer;
+                                  model.acceptOrder();
+                                });
+                                // first = false;
+                                // print("Dragging in +X direction");
+                              } else
+                                model.endTrip1 = false;
+
+                              if (details.delta.dy > 0)
+                                print("Dragging in +Y direction");
+                              else
+                                print("Dragging in -Y direction");
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(right: 1, bottom: 1),
+                              width: size.width / (375 / 72),
+                              height: 57.5,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: Colors.white),
+                              child: Center(
+                                child: SvgPicture.asset(
+                                    'assets/map_page/arrowRight.svg'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              )
-            ],
+                  )
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

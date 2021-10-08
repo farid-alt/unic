@@ -5,7 +5,7 @@ import 'package:unic_app/services/web_services.dart';
 class ContactUsViewModel extends BaseViewModel {
   String fbUrl;
   String instaUrl;
-  String emailUrl;
+  String emailUrl = '';
 
   Future getContactUs;
 

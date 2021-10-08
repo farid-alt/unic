@@ -6,6 +6,7 @@ import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/arrow_back_button.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/profile%20page/profile_page_comp.dart';
+import 'package:unic_app/models/adress.dart';
 import 'package:unic_app/views/user/choose_adress_map/choose_adress_map_view.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_viewmodel.dart';
 
@@ -60,8 +61,16 @@ class _UserProfilePageViewState extends State<UserProfilePageView> {
                                       onTap: () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  TakeAdress())),
+                                              builder: (context) => TakeAdress(
+                                                    location:
+                                                        model.user.homeAdress,
+                                                  ))).then((value) =>
+                                          model.sendAdress(
+                                              place: 'home',
+                                              adress: Adress(
+                                                  nameOfPlace: value[0],
+                                                  lat: value[1],
+                                                  lng: value[2]))),
                                       child: SavedDestinationsRow(
                                           size: size,
                                           iconAdress:
@@ -69,17 +78,34 @@ class _UserProfilePageViewState extends State<UserProfilePageView> {
                                           title: 'Home'),
                                     ),
                                     Divider(thickness: 0.7),
-                                    SavedDestinationsRow(
-                                        size: size,
-                                        iconAdress:
-                                            'assets/user_profile/icons/suitcase.svg',
-                                        title: 'Work'),
+
+                                    InkWell(
+                                      onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => TakeAdress(
+                                                    location:
+                                                        model.user.workAdress,
+                                                  ))).then((value) =>
+                                          model.sendAdress(
+                                              place: 'work',
+                                              adress: Adress(
+                                                  nameOfPlace: value[0],
+                                                  lat: value[1],
+                                                  lng: value[2]))),
+                                      child: SavedDestinationsRow(
+                                          size: size,
+                                          iconAdress:
+                                              'assets/user_profile/icons/suitcase.svg',
+                                          title: 'Work'),
+                                    ),
+                                    SizedBox(height: 20),
                                     boldTextBuilder('Language'),
-                                    SizedBox(height: size.height / (812 / 16)),
+                                    SizedBox(height: 16),
                                     LanguageRow(language: '${model.language}'),
-                                    SizedBox(height: size.height / (812 / 16)),
+                                    SizedBox(height: 20),
                                     boldTextBuilder('Settings'),
-                                    SizedBox(height: size.height / (812 / 16)),
+                                    SizedBox(height: 16),
                                     NotificationSwitchRow(
                                         onTapIcon: () {
                                           print(

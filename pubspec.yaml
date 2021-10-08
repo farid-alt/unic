@@ -55,6 +55,13 @@ dependencies:
   socket_io_client: ^1.0.1
   laravel_echo:
   dart_jsonwebtoken: ^2.1.0
+  provider: ^5.0.0
+  mask_text_input_formatter: ^2.0.0
+  fluttertoast: ^8.0.8
+  image_picker: ^0.8.4+2
+  share: ^2.0.4
+  clipboard: ^0.1.3
+  # map_launcher: ^2.1.1
   # sliding_up_panel: ^2.0.0+1
   # http: ^0.13.3
 

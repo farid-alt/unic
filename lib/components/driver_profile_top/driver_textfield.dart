@@ -3,20 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:unic_app/components/colors.dart';
 
 class EditTextFieldDriver extends StatelessWidget {
-  EditTextFieldDriver({
-    Key key,
-    @required this.size,
-    @required this.hintTitle,
-    @required this.hintText,
-    this.controller,
-    this.isNumber = false,
-  }) : super(key: key);
+  EditTextFieldDriver(
+      {Key key,
+      @required this.size,
+      @required this.hintTitle,
+      @required this.hintText,
+      // this.controller,
+      this.isNumber = false,
+      this.onChanged,
+      this.initialValue,
+      this.enabled = true})
+      : super(key: key);
 
   final Size size;
   final String hintTitle;
   final String hintText;
-  final TextEditingController controller;
+  // final TextEditingController controller = TextEditingController();
   bool isNumber = false;
+  final Function onChanged;
+  final String initialValue;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +41,11 @@ class EditTextFieldDriver extends StatelessWidget {
               //         color: kTextSecondaryColor,
               //         fontSize: 14,
               //         fontWeight: FontWeight.w400)),
-              TextField(
-                onChanged: (val) => controller.text = val,
+              TextFormField(
+                enabled: enabled,
+                initialValue: initialValue,
+                onChanged: onChanged,
+                // controller: controller,
                 decoration: InputDecoration(
                     // contentPadding:
                     //     EdgeInsets.only(top: size.height / (812 / -20)),

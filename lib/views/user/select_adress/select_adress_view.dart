@@ -4,13 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/endpoints.dart';
 import 'package:unic_app/models/adress.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
 import 'package:unic_app/views/user/select_adress/select_adress_viewmodel.dart';
 
 class SelectAdressView extends StatelessWidget {
   // MapPageViewModel model;
-  SelectAdressView();
+  SelectAdressView({this.firstAdress});
+  Adress firstAdress;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -51,7 +54,7 @@ class SelectAdressView extends StatelessWidget {
                                           size: size.width / (375 / 25),
                                         ),
                                         AutoSizeText(
-                                          'Back',
+                                          "${kGeneralTranslates['back'][LANGUAGE]}",
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w700,
@@ -59,7 +62,8 @@ class SelectAdressView extends StatelessWidget {
                                         )
                                       ]),
                                     ),
-                                    AutoSizeText('Select location',
+                                    AutoSizeText(
+                                        "${kMapPageTranslates['select_location'][LANGUAGE]}",
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -73,7 +77,8 @@ class SelectAdressView extends StatelessWidget {
                                           model.adresses
                                         ],
                                       ),
-                                      child: AutoSizeText('Done',
+                                      child: AutoSizeText(
+                                          "${kGeneralTranslates['done'][LANGUAGE]}",
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w400,
@@ -316,7 +321,7 @@ class SelectAdressView extends StatelessWidget {
                         color: Color(0xffF1F3F5),
                         child: Center(
                           child: AutoSizeText(
-                            'Choose on map',
+                            "${kMapPageTranslates['choose_on_map'][LANGUAGE]}",
                             style: TextStyle(
                                 color: kPrimaryColor,
                                 fontSize: 15,
@@ -331,7 +336,8 @@ class SelectAdressView extends StatelessWidget {
             ),
           );
         },
-        viewModelBuilder: () => SelectAdressViewModel());
+        viewModelBuilder: () =>
+            SelectAdressViewModel(firstAdress: firstAdress));
   }
 }
 
@@ -498,7 +504,7 @@ class ElementSelectAdress2 extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            height: size.height / (815 / 5),
+            height: size.height / (815 / 14),
           ),
           if (last)
             Column(
@@ -506,7 +512,7 @@ class ElementSelectAdress2 extends StatelessWidget {
                 SvgPicture.asset('assets/ride_history/Line 7.svg',
                     color: color),
                 SizedBox(
-                  height: size.height / (815 / 5),
+                  height: size.height / (815 / 14),
                 ),
                 SvgPicture.asset(
                   'assets/map_page/OtherAdress.svg',
@@ -573,7 +579,7 @@ class _TextfieldWithSuffixIconState extends State<TextfieldWithSuffixIcon> {
         style: TextStyle(
             fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
         decoration: InputDecoration(
-            hintText: 'Search location',
+            hintText: "${kMapPageTranslates['search_location'][LANGUAGE]}",
             hintStyle: TextStyle(
               fontWeight: FontWeight.w500,
               color: Color(0xffB6DFFF),

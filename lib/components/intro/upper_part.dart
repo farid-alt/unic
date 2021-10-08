@@ -1,6 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/endpoints.dart';
+
+import '../../translates.dart';
 
 class IntroUpperPart extends StatelessWidget {
   const IntroUpperPart({
@@ -21,7 +24,7 @@ class IntroUpperPart extends StatelessWidget {
             height: size.height / (812 / 70),
           ),
           AutoSizeText(
-            'Welcome,',
+            '${kOnboardingScreen['welcome'][LANGUAGE]},',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w500,
@@ -29,7 +32,7 @@ class IntroUpperPart extends StatelessWidget {
             ),
           ),
           AutoSizeText(
-            'Our Community!',
+            '${kOnboardingScreen['our_community'][LANGUAGE]},',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,

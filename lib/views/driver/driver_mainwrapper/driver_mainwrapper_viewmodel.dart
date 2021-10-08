@@ -7,13 +7,12 @@ import 'package:unic_app/services/web_services.dart';
 import 'package:unic_app/views/user/map_page/map_page_view.dart';
 import 'package:unic_app/views/user/profile_page/profile_page_view.dart';
 
-class MainWrapperViewModel extends ChangeNotifier {
+class DriverMainWrapperViewModel extends ChangeNotifier {
   User _user;
   Future getUser;
-  MainWrapperViewModel() {
+  DriverMainWrapperViewModel() {
     getUser = getUserApi();
   }
-  bool isDriver = false;
   User get user => _user;
   getUserApi() async {
     var data = await WebService.getCall(url: GET_USER, headers: {
@@ -24,15 +23,9 @@ class MainWrapperViewModel extends ChangeNotifier {
 
     if (data[0] == 200) {
       print(data);
-      isDriver =
-          data[1]['data']['customer']['user']['is_driver'] == 1 ? true : false;
-      if (isDriver) {
-        DRIVERID = data[1]['data']['driver']['id'].toString();
-      }
       _user = User(
         name: data[1]['data']['customer']['user']['full_name'],
-        profilePicAdress: data[1]['data']['customer']['image'],
-
+        profilePicAdress: data[1]['data']['driver']['image'],
         // surname: ' ',
         // profilePicAdress: data[1]['data']['image'],
         // id: data[1]['data']['id'],

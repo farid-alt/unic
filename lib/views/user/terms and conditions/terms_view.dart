@@ -4,6 +4,8 @@ import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/terms%20and%20conditions/terms_viewmodel.dart';
 
 class TermsPage extends KFDrawerContent {
@@ -30,7 +32,10 @@ class _TermsPageState extends State<TermsPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(height: size.height / (812 / 60)),
-                        BackWithTitle(size: size, title: 'Terms & Conditions'),
+                        BackWithTitle(
+                            size: size,
+                            title:
+                                '${kMenuTranslates['terms_conditions'][LANGUAGE]}'),
                         SizedBox(height: size.height / (812 / 32)),
                         Container(
                           width: double.infinity,
@@ -39,7 +44,7 @@ class _TermsPageState extends State<TermsPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AutoSizeText(
-                                'General terms',
+                                '${kMenuTranslates['general_terms'][LANGUAGE]}',
                                 style: TextStyle(
                                     color: kTextPrimary,
                                     fontSize: 16,

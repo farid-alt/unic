@@ -11,6 +11,7 @@ class CodePageViewModel extends ChangeNotifier {
   String _codeInput = ''; //user's input code
   String _trueCode = '1234'; // Variable for user inputted code check up
   String _fullname = '';
+  String userId;
 
   get fullname => _fullname;
   set fullname(String val) {
@@ -62,20 +63,23 @@ class CodePageViewModel extends ChangeNotifier {
     if (data[0] == 200) {
       //print(data[1]);
       TOKEN = data[1]['data']['access_token'];
-      // ID = data[1]['data']['userDetail']['id'].toString();
+      userId = data[1]['data']['userDetail']['user_id'].toString();
+      ID = data[1]['data']['userDetail']['id'].toString();
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('id', data[1]['data']['userDetail']['id'].toString());
+      prefs.setString('id', ID);
+      prefs.setString('userId', userId);
       prefs.setString('token', data[1]['data']['access_token']);
       print('$ID');
       //print(TOKEN);
     }
+    return data;
   }
 
   addFullname() async {
     print('$_fullname &&& $ID');
     var data = await WebService.postCall(url: ADD_FULLNAME, data: {
       'full_name': _fullname,
-      'user_id': ID.toString()
+      'user_id': userId.toString()
     }, headers: {
       'Accept': 'application/json',
       'Authorization': 'Bearer $TOKEN'

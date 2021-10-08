@@ -7,6 +7,8 @@ import 'package:kf_drawer/kf_drawer.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
 import 'package:unic_app/components/colors.dart';
+import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/payments/payments_viewmodel.dart';
 import '/views/user/add card/add_card_view.dart';
 
@@ -37,7 +39,9 @@ class _PaymentsViewState extends State<PaymentsView> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BackWithTitle(size: size, title: 'Payments'),
+                    BackWithTitle(
+                        size: size,
+                        title: '${kMenuTranslates['payments'][LANGUAGE]}'),
                     SizedBox(height: size.height / (812 / 55)),
                     for (int i = 0; i < model.payments.length; i++)
                       Column(
@@ -54,14 +58,15 @@ class _PaymentsViewState extends State<PaymentsView> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    AddCardView(model: model)));
+                                    AddCardView(model: model))).then((value) =>
+                            model.getCreditCards = model.getCreditCardsApi());
                       },
                       child: Container(
                         width: double.infinity,
                         height: size.height / (812 / 60),
                         child: Center(
                           child: AutoSizeText(
-                            'Add card',
+                            '${kMenuTranslates['add_card'][LANGUAGE]}',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,

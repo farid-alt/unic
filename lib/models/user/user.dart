@@ -1,13 +1,16 @@
+import 'package:unic_app/models/adress.dart';
+
 class User {
   String name;
   String surname;
   String profilePicAdress = ' ';
   String fullname;
   String email;
-  String homeAdress;
-  String workAdress;
+  Adress homeAdress;
+  Adress workAdress;
   String phone;
   int id;
+  Adress lastAdress;
 
   User(
       {this.name,
@@ -17,6 +20,7 @@ class User {
       this.workAdress,
       this.profilePicAdress = ' ',
       this.email,
+      this.lastAdress,
       this.phone})
       : fullname = '$name $surname';
 }

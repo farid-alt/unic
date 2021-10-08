@@ -25,34 +25,43 @@ class PositionedWithCircleAvatar
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // CircleAvatar(
-            //   radius: size.width / (375 / 56),
-            //   foregroundImage: model.user.profilePicAdress != null
-            //       ? NetworkImage('${model.user.profilePicAdress}')
-            //       : NetworkImage(
-            //           'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'),
-            // ),
+            CircleAvatar(
+              radius: size.width / (375 / 56),
+              foregroundImage: model.localFile != null
+                  ? AssetImage(model.localFile.path)
+                  : model.user.profilePicAdress != null
+                      ? NetworkImage(
+                          'https://unikeco.az${model.user.profilePicAdress}')
+                      : NetworkImage(
+                          'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'),
+            ),
             SizedBox(height: size.height / (812 / 10)),
-            AutoSizeText('${model.user.name} ${model.user.surname}',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: kTextPrimary)),
-            SizedBox(height: size.height / (812 / 6)),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => UserProfileEditPageView()));
-              },
-              child: AutoSizeText('Edit profile',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: kTextSecondaryColor)),
+            Column(
+              children: [
+                AutoSizeText('${model.user.fullname}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: kTextPrimary)),
+                SizedBox(height: size.height / (812 / 6)),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UserProfileEditPageView(
+                                  model: model,
+                                )));
+                  },
+                  child: AutoSizeText('Edit profile',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: kTextSecondaryColor)),
+                ),
+              ],
             ),
           ],
         ));
@@ -116,8 +125,8 @@ class NotificationSwitchRow extends StatelessWidget {
           onTap: onTapIcon,
           child: SvgPicture.asset(
             '$svgAdress',
-            height: size.height / (812 / 30),
-            width: size.width / (375 / 40),
+            height: 30,
+            width: 40,
           ),
         )
       ],
