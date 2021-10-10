@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/back_with_title.dart';
@@ -54,6 +55,25 @@ class RideDetailsView extends StatelessWidget {
                     Container(
                       width: double.infinity,
                       height: size.height / (812 / 218),
+                      child: GoogleMap(
+                          zoomControlsEnabled: false,
+                          scrollGesturesEnabled: false,
+                          rotateGesturesEnabled: false,
+                          mapToolbarEnabled: false,
+                          zoomGesturesEnabled: false,
+                          polylines: Set<Polyline>.of(model.polylines.values),
+                          onMapCreated: (controller) {
+                            model.mapController = controller;
+                            // _controller.complete(controller);
+                          },
+                          myLocationEnabled: false,
+                          myLocationButtonEnabled: false,
+                          initialCameraPosition: CameraPosition(
+                              target: LatLng(
+                                ride.startAdressA.lat,
+                                ride.startAdressA.lng,
+                              ),
+                              zoom: 10.8)),
                       decoration: buildBoxDecoration(),
                     ),
                     SizedBox(height: size.height / (812 / 16)),
@@ -259,7 +279,7 @@ class RideDetailsView extends StatelessWidget {
             ),
           );
         },
-        viewModelBuilder: () => RideDetailsViewModel());
+        viewModelBuilder: () => RideDetailsViewModel(ride: ride));
   }
 
   BoxDecoration buildBoxDecoration() {
@@ -475,12 +495,16 @@ class RideDetailedContainer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AutoSizeText(
-                '${startAdress}',
-                style: TextStyle(
-                    color: kTextPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500),
+              Container(
+                width: size.width / (375 / 280),
+                child: AutoSizeText(
+                  '${startAdress}',
+                  maxLines: 1,
+                  style: TextStyle(
+                      color: kTextPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                ),
               ),
               AutoSizeText(
                 '${kMenuTranslates['from'][LANGUAGE]} - ${startTime}',
@@ -490,12 +514,16 @@ class RideDetailedContainer extends StatelessWidget {
                     fontWeight: FontWeight.w500),
               ),
               SizedBox(height: size.height / (812 / 25)),
-              AutoSizeText(
-                '${endAdress}',
-                style: TextStyle(
-                    color: kTextPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500),
+              Container(
+                width: size.width / (375 / 280),
+                child: AutoSizeText(
+                  '${endAdress}',
+                  maxLines: 1,
+                  style: TextStyle(
+                      color: kTextPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                ),
               ),
               AutoSizeText(
                 '${kMenuTranslates['to'][LANGUAGE]} - ${endTime}',

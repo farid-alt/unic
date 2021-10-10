@@ -133,46 +133,51 @@ class UserProfilePageViewModel extends ChangeNotifier {
       'Authorization': 'Bearer $TOKEN'
     });
     print(data);
+    try {
+      if (data[0] == 200) {
+        print(data);
+        _user = User(
+          name: data[1]['data']['customer']['user']['full_name'],
+          surname: ' ',
+          profilePicAdress: data[1]['data']['customer']['image'],
+          id: data[1]['data']['customer']['id'],
+          email: data[1]['data']['customer']['user']['email'],
+          // homeAdress: data[1]['data']['home_address'],
+          // workAdress: data[1]['data']['work_address'],
+          phone: data[1]['data']['customer']['user']['phone'],
+          homeAdress: data[1]['data']['customer']['home_address'] == null ||
+                  data[1]['data']['customer']['home_address'] == ''
+              ? Adress()
+              : Adress(
+                  nameOfPlace: data[1]['data']['customer']['home_address'],
+                  lat: double.parse(
+                      data[1]['data']['customer']['home_address_latitude']),
+                  lng: double.parse(
+                      data[1]['data']['customer']['home_address_longitude']),
+                ),
+          workAdress: data[1]['data']['customer']['work_address'] == null ||
+                  data[1]['data']['customer']['work_address'] == ''
+              ? Adress()
+              : Adress(
+                  nameOfPlace: data[1]['data']['customer']['work_address'],
+                  lat: double.parse(
+                      data[1]['data']['customer']['work_address_latitude']),
+                  lng: double.parse(
+                      data[1]['data']['customer']['work_address_longitude']),
+                ),
 
-    if (data[0] == 200) {
-      print(data);
-      _user = User(
-        name: data[1]['data']['customer']['user']['full_name'],
-        surname: ' ',
-        profilePicAdress: data[1]['data']['customer']['image'],
-        id: data[1]['data']['customer']['id'],
-        email: data[1]['data']['customer']['user']['email'],
-        // homeAdress: data[1]['data']['home_address'],
-        // workAdress: data[1]['data']['work_address'],
-        phone: data[1]['data']['customer']['user']['phone'],
-        homeAdress: data[1]['data']['customer']['home_address'] == null
-            ? Adress()
-            : Adress(
-                nameOfPlace: data[1]['data']['customer']['home_address'],
-                lat: double.parse(
-                    data[1]['data']['customer']['home_address_latitude']),
-                lng: double.parse(
-                    data[1]['data']['customer']['home_address_longitude']),
-              ),
-        workAdress: data[1]['data']['customer']['work_adress'] == null
-            ? Adress()
-            : Adress(
-                nameOfPlace: data[1]['data']['customer']['work_adress'],
-                lat: double.parse(
-                    data[1]['data']['customer']['work_adress_latitude']),
-                lng: double.parse(
-                    data[1]['data']['customer']['work_adress_longitude']),
-              ),
-
-        //TODO ADD last adress
-      );
-      notifyListeners();
-      // _faqs = data[1]['data']
-      //     .map<FaqWidgetModel>(
-      //       (val) =>
-      //           FaqWidgetModel(content: val['content'], title: val['title']),
-      //     )
-      //     .toList();
+          //TODO ADD last adress
+        );
+        notifyListeners();
+        // _faqs = data[1]['data']
+        //     .map<FaqWidgetModel>(
+        //       (val) =>
+        //           FaqWidgetModel(content: val['content'], title: val['title']),
+        //     )
+        //     .toList();
+      }
+    } catch (e) {
+      print("PROFILE EXCEPTION $e");
     }
   }
 }

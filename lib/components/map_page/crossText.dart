@@ -42,6 +42,45 @@ class NewPriceRow extends StatelessWidget {
   }
 }
 
+class NewPriceColumnSmall extends StatelessWidget {
+  const NewPriceColumnSmall({
+    Key key,
+    this.promoPrice,
+    this.tarifPrice,
+    @required this.size,
+    // @required this.ridePrice,
+  }) : super(key: key);
+
+  final String tarifPrice;
+  final String promoPrice;
+  final Size size;
+  // final String ridePrice;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        AutoSizeText(
+          '${tarifPrice} AZN',
+          style: TextStyle(
+              decoration: TextDecoration.lineThrough,
+              color: Colors.white,
+              fontSize: 8,
+              fontWeight: FontWeight.w700),
+        ),
+        SizedBox(
+          width: size.width / (375 / 5),
+        ),
+        AutoSizeText(
+          '${promoPrice} AZN',
+          style: TextStyle(
+              color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+        )
+      ],
+    );
+  }
+}
+
 class NewPriceRowSmall extends StatelessWidget {
   const NewPriceRowSmall({
     Key key,

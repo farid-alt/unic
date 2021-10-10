@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unic_app/models/adress.dart';
 import 'package:unic_app/models/user/driver.dart';
 import 'package:unic_app/models/user/ride.dart';
 import 'package:unic_app/models/user/user.dart';
@@ -186,6 +187,19 @@ class RideHistoryViewModel extends ChangeNotifier {
             (val) => Ride(
                 rideId: val['id'],
                 rideDate: DateTime.parse(val['date']),
+                startAdressA: Adress(
+                  nameOfPlace: val['destinations'][0]['destination'],
+                  lat: double.parse(val['destinations'][0]['latitude']),
+                  lng: double.parse(val['destinations'][0]['longitude']),
+                ),
+                endAdressA: Adress(
+                  nameOfPlace: val['destinations']
+                      [val['destinations'].length - 1]['destination'],
+                  lat: double.parse(val['destinations']
+                      [val['destinations'].length - 1]['latitude']),
+                  lng: double.parse(val['destinations']
+                      [val['destinations'].length - 1]['longitude']),
+                ),
                 startAdress: val['destinations'][0]['destination'],
                 endAdress: val['destinations'][val['destinations'].length - 1]
                     ['destination'],

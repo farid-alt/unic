@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:kf_drawer/kf_drawer.dart';
 import 'package:location/location.dart';
@@ -15,6 +16,7 @@ import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/components/map_page/crossText.dart';
 import 'package:unic_app/components/primary_button.dart';
 import 'package:unic_app/endpoints.dart';
+import 'package:unic_app/models/adress.dart';
 import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
 import 'package:unic_app/views/user/payments_choose_for_trip/payments_view.dart';
@@ -24,6 +26,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class MapPageView extends KFDrawerContent {
   @override
@@ -54,6 +57,7 @@ class _MapPageViewState extends State<MapPageView> {
                         future: model.findMyLocation(),
                         builder: (context, snapshot) {
                           return GoogleMap(
+                            zoomControlsEnabled: false,
                             polylines: Set<Polyline>.of(model.polylines.values),
                             onMapCreated: (controller) {
                               model.mapController = controller;
@@ -169,7 +173,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                     child: CircleAvatar(
                                       radius: size.width / (375 / 30),
                                       backgroundImage: NetworkImage(
-                                          model.driver.profilePicAdress),
+                                          "https://unikeco.az${model.driver.profilePicAdress}"),
                                     ),
                                   ),
                                   SizedBox(
@@ -227,7 +231,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                           )
                         : Center(
                             child: AutoSizeText(
-                              '${model.timeToArrivetToDestination} ${kOrderTranslates['min_left'][LANGUAGE]}',
+                              '${model.timeToArrivetToDestination == '0' ? '1' : model.timeToArrivetToDestination} ${kOrderTranslates['min_left'][LANGUAGE]}',
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -285,9 +289,9 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         AutoSizeText(
-                                          model.firstAdress.adress == null
+                                          model.firstAdress.nameOfPlace == null
                                               ? '${model.firstAdress.nameOfPlace}'
-                                              : '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}',
+                                              : '${model.firstAdress.nameOfPlace}',
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
@@ -314,9 +318,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        model.adresses[i].adress == null
-                                            ? '${model.adresses[i].nameOfPlace}'
-                                            : '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
+                                        '${model.adresses[i].nameOfPlace}',
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
@@ -341,7 +343,7 @@ class YouAreOnWay extends ViewModelWidget<MapPageViewModel> {
                       SizedBox(
                         height: size.height / (815 / 16),
                       ),
-                      ChangeDestination(size: size),
+                      // ChangeDestination(size: size),
                       SizedBox(
                         height: size.height / (815 / 8),
                       ),
@@ -632,8 +634,8 @@ class EndTripDriverContainer extends StatelessWidget {
                   backgroundColor: Colors.white,
                   child: CircleAvatar(
                     radius: size.width / (375 / 30),
-                    backgroundImage:
-                        NetworkImage(model.driver.profilePicAdress),
+                    backgroundImage: NetworkImage(
+                        "https://unikeco.az${model.driver.profilePicAdress}"),
                   ),
                 ),
                 SizedBox(
@@ -687,11 +689,18 @@ class EndTripDriverContainer extends StatelessWidget {
                 ),
               ],
             ),
-            AutoSizeText('${model.costOfTripPromo} azn',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white))
+            model.costOfTrip == model.costOfTripPromo
+                ? AutoSizeText(
+                    '${model.costOfTrip}',
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: kTextPrimary,
+                        fontWeight: FontWeight.w700),
+                  )
+                : NewPriceColumnSmall(
+                    size: size,
+                    promoPrice: model.costOfTripPromo,
+                    tarifPrice: model.costOfTrip)
           ],
         ),
       ),
@@ -821,7 +830,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 AutoSizeText(
-                                  '${model.timeToArrivetToYouLeft} min',
+                                  '${model.timeToArrivetToYouLeft == '0' ? '1' : model.timeToArrivetToYouLeft} min',
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
@@ -912,9 +921,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         AutoSizeText(
-                                          model.firstAdress.adress != null
-                                              ? '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}'
-                                              : '${model.firstAdress.nameOfPlace}',
+                                          '${model.firstAdress.nameOfPlace}',
                                           style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
@@ -941,9 +948,7 @@ class DriverIsComing extends ViewModelWidget<MapPageViewModel> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       AutoSizeText(
-                                        model.adresses[i].adress == null
-                                            ? "${model.adresses[i].nameOfPlace}"
-                                            : '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
+                                        "${model.adresses[i].nameOfPlace}",
                                         style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
@@ -1127,12 +1132,16 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                                 Padding(
                                   padding: EdgeInsets.only(
                                       top: size.height / (815 / 13)),
-                                  child: AutoSizeText(
-                                    '${model.firstAdress.nameOfPlace},${model.firstAdress.adress}',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white),
+                                  child: Container(
+                                    width: size.width / (375 / 300),
+                                    child: AutoSizeText(
+                                      '${model.firstAdress.nameOfPlace ?? ''}',
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white),
+                                    ),
                                   ),
                                 )
                               ],
@@ -1143,12 +1152,16 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                                     top: size.height / (815 / 40)),
                                 child: Column(
                                   children: [
-                                    AutoSizeText(
-                                      '${model.adresses[i].nameOfPlace},${model.adresses[i].adress}',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white),
+                                    Container(
+                                      width: size.width / (375 / 300),
+                                      child: AutoSizeText(
+                                        model.adresses[i].nameOfPlace ?? '',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white),
+                                      ),
                                     )
                                   ],
                                 ),
@@ -1161,6 +1174,8 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                     ),
                     InkWell(
                       onTap: () {
+                        model.polylines.clear();
+                        model.polylineCoordinates.clear();
                         model.status = StatusOfMap.Start;
                       },
                       child:
@@ -1226,6 +1241,8 @@ class SelectTripOptions extends ViewModelWidget<MapPageViewModel> {
                               backgroundColor: Colors.red,
                               textColor: Colors.white,
                               gravity: ToastGravity.CENTER);
+                          model.polylineCoordinates.clear();
+                          model.polylines.clear();
                         } else {
                           model.status = StatusOfMap.SearchingDriver;
                         }
@@ -1381,12 +1398,14 @@ class TripInfoContainer extends ViewModelWidget<MapPageViewModel> {
               DetailsAboutTripRow(
                 size: size,
                 icon: 'assets/map_page/Location.svg',
-                text: '${double.parse(model.distanceOfTrip) / 1000} km',
+                text: (double.parse(model.distanceOfTrip) / 1000)
+                        .toStringAsFixed(1) +
+                    ' km',
               ),
               DetailsAboutTripRow(
                 size: size,
                 icon: 'assets/map_page/time_square.svg',
-                text: '${model.timeOfTrip} min',
+                text: '${model.timeOfTrip == '0' ? '1' : model.timeOfTrip} min',
               ),
               Row(
                 children: [
@@ -1540,7 +1559,8 @@ class CancelOrderMapPage extends ViewModelWidget<MapPageViewModel> {
         child: PrimaryButton(
           size: size,
           function: () {
-            model.status = StatusOfMap.DriverComes;
+            // model.status = StatusOfMap.DriverComes;
+            model.cancelOrder();
           },
           color: kPrimaryColor,
           title: '${kOrderTranslates['cancel_order_search'][LANGUAGE]}',
@@ -1601,43 +1621,57 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
             Align(
               alignment: Alignment.center,
               child: InkWell(
-                onTap: () {
-                  Navigator.of(context)
-                      //     .push(CupertinoPageRoute(
+                onTap: () async {
+                  List<Address> adresses = await Geocoder.local
+                      .findAddressesFromCoordinates(Coordinates(
+                          model.locationData.latitude,
+                          model.locationData.longitude))
+                      .then((value) {
+                    print("adresses ${value}");
+                    Adress yourAdress = Adress(
+                        nameOfPlace: value.first.addressLine,
+                        lat: model.locationData.latitude,
+                        lng: model.locationData.longitude);
+                    Navigator.of(context)
+                        //     .push(CupertinoPageRoute(
 
-                      //   fullscreenDialog: true,
-                      //   builder: (BuildContext context) {
-                      //     return SelectAdressView();
-                      //   },
-                      // ))
-                      .push(yourCustomRoute())
-                      .then((value) async {
-                    if (value[0] == 'OK') {
-                      try {
-                        await model.animateToMyPosition();
-                        model.firstAdress = value[1];
-                        model.adresses = value[2];
-                        final val = await model.calculateOrder();
-                        print("VALUE FROM $val");
-                        if (val == 200) {
-                          model.status = StatusOfMap.ApplyYourTrip;
+                        //   fullscreenDialog: true,
+                        //   builder: (BuildContext context) {
+                        //     return SelectAdressView();
+                        //   },
+                        // ))
+                        .push(yourCustomRoute(yourAdress))
+                        .then((value) async {
+                      if (value[0] == 'OK') {
+                        try {
+                          await model.animateToMyPosition();
+                          model.firstAdress = value[1];
+                          model.adresses = value[2];
+                          final val = await model.calculateOrder();
+                          print("VALUE FROM $val");
+                          if (val == 200) {
+                            model.status = StatusOfMap.ApplyYourTrip;
 
-                          print(TOKEN);
-                        } else {
-                          Fluttertoast.showToast(
-                              msg: 'Yaxınlıqda boş mototaksi yoxdur',
-                              timeInSecForIosWeb: 2,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              gravity: ToastGravity.CENTER);
+                            print(TOKEN);
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: 'Yaxınlıqda boş mototaksi yoxdur',
+                                timeInSecForIosWeb: 2,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                gravity: ToastGravity.CENTER);
+                            model.polylineCoordinates.clear();
+                            model.polylines.clear();
+                          }
+
+                          print('Done');
+                        } catch (e) {
+                          print(e);
                         }
-
-                        print('Done');
-                      } catch (e) {
-                        print(e);
                       }
-                    }
+                    });
                   });
+
                   // Navigator.push(
                   //   context,
                   //   MaterialPageRoute(
@@ -1664,7 +1698,7 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
                           size: size,
                           iconPath: 'assets/map_page/Home.svg',
                           title: kMapPageTranslates['home'][LANGUAGE],
-                          function: () {
+                          function: () async {
                             // model.status = StatusOfMap.TripFinished;
                             if (model.user.homeAdress.nameOfPlace == null ||
                                 model.user.homeAdress.nameOfPlace == '') {
@@ -1675,11 +1709,43 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
                                 gravity: ToastGravity.CENTER,
                               );
                             } else {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SelectAdressView(
-                                          firstAdress: model.user.homeAdress)));
+                              try {
+                                print("YOUR ADRESS ");
+                                Geocoder.local
+                                    .findAddressesFromCoordinates(Coordinates(
+                                        model.locationData.latitude,
+                                        model.locationData.longitude))
+                                    .then((value) async {
+                                  await model.animateToMyPosition();
+                                  model.firstAdress = Adress(
+                                      lat: model.locationData.latitude,
+                                      lng: model.locationData.longitude,
+                                      nameOfPlace: value.first.addressLine);
+                                  model.adresses = [model.user.homeAdress];
+                                  print(
+                                      "YOUR ADRESS ${value.first.addressLine}");
+                                  final val = await model.calculateOrder();
+                                  print("VALUE FROM $val");
+                                  if (val == 200) {
+                                    model.status = StatusOfMap.ApplyYourTrip;
+
+                                    print(TOKEN);
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: 'Yaxınlıqda boş mototaksi yoxdur',
+                                        timeInSecForIosWeb: 2,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        gravity: ToastGravity.CENTER);
+                                    model.polylineCoordinates.clear();
+                                    model.polylines.clear();
+                                  }
+                                });
+
+                                print('Done');
+                              } catch (e) {
+                                print(e);
+                              }
                             }
                           }),
                       MapPageBigMapPage(
@@ -1696,11 +1762,43 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
                                 gravity: ToastGravity.CENTER,
                               );
                             } else {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SelectAdressView(
-                                          firstAdress: model.user.workAdress)));
+                              try {
+                                print("YOUR ADRESS ");
+                                Geocoder.local
+                                    .findAddressesFromCoordinates(Coordinates(
+                                        model.locationData.latitude,
+                                        model.locationData.longitude))
+                                    .then((value) async {
+                                  await model.animateToMyPosition();
+                                  model.firstAdress = Adress(
+                                      lat: model.locationData.latitude,
+                                      lng: model.locationData.longitude,
+                                      nameOfPlace: value.first.addressLine);
+                                  model.adresses = [model.user.workAdress];
+                                  print(
+                                      "YOUR ADRESS ${value.first.addressLine}");
+                                  final val = await model.calculateOrder();
+                                  print("VALUE FROM $val");
+                                  if (val == 200) {
+                                    model.status = StatusOfMap.ApplyYourTrip;
+
+                                    print(TOKEN);
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: 'Yaxınlıqda boş mototaksi yoxdur',
+                                        timeInSecForIosWeb: 2,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        gravity: ToastGravity.CENTER);
+                                    model.polylineCoordinates.clear();
+                                    model.polylines.clear();
+                                  }
+                                });
+
+                                print('Done');
+                              } catch (e) {
+                                print(e);
+                              }
                             }
                           }),
                       MapPageBigMapPage(
@@ -1717,11 +1815,43 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
                                 gravity: ToastGravity.CENTER,
                               );
                             } else {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SelectAdressView(
-                                          firstAdress: model.user.lastAdress)));
+                              try {
+                                print("YOUR ADRESS ");
+                                Geocoder.local
+                                    .findAddressesFromCoordinates(Coordinates(
+                                        model.locationData.latitude,
+                                        model.locationData.longitude))
+                                    .then((value) async {
+                                  await model.animateToMyPosition();
+                                  model.firstAdress = Adress(
+                                      lat: model.locationData.latitude,
+                                      lng: model.locationData.longitude,
+                                      nameOfPlace: value.first.addressLine);
+                                  model.adresses = [model.user.lastAdress];
+                                  print(
+                                      "YOUR ADRESS ${value.first.addressLine}");
+                                  final val = await model.calculateOrder();
+                                  print("VALUE FROM $val");
+                                  if (val == 200) {
+                                    model.status = StatusOfMap.ApplyYourTrip;
+
+                                    print(TOKEN);
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: 'Yaxınlıqda boş mototaksi yoxdur',
+                                        timeInSecForIosWeb: 2,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        gravity: ToastGravity.CENTER);
+                                    model.polylineCoordinates.clear();
+                                    model.polylines.clear();
+                                  }
+                                });
+
+                                print('Done');
+                              } catch (e) {
+                                print(e);
+                              }
                             }
                           }),
                     ],
@@ -1737,10 +1867,13 @@ class StartMapBottom extends ViewModelWidget<MapPageViewModel> {
   }
 }
 
-Route yourCustomRoute() {
+Route yourCustomRoute(Adress yourAdress) {
   return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          SelectAdressView(),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return SelectAdressView(
+          firstAdress: yourAdress,
+        );
+      },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(0, 1); //start position from top and left corner f.e.
         var end = Offset.zero;

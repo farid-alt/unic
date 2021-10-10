@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:stacked/stacked.dart';
 import 'package:unic_app/components/colors.dart';
 import 'package:unic_app/endpoints.dart';
@@ -10,10 +11,16 @@ import 'package:unic_app/translates.dart';
 import 'package:unic_app/views/user/map_page/map_page_viewmodel.dart';
 import 'package:unic_app/views/user/select_adress/select_adress_viewmodel.dart';
 
-class SelectAdressView extends StatelessWidget {
+class SelectAdressView extends StatefulWidget {
   // MapPageViewModel model;
   SelectAdressView({this.firstAdress});
   Adress firstAdress;
+
+  @override
+  State<SelectAdressView> createState() => _SelectAdressViewState();
+}
+
+class _SelectAdressViewState extends State<SelectAdressView> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -69,14 +76,28 @@ class SelectAdressView extends StatelessWidget {
                                             fontWeight: FontWeight.w700,
                                             color: Colors.white)),
                                     InkWell(
-                                      onTap: () => Navigator.pop(
-                                        context,
-                                        [
-                                          'OK',
-                                          model.firstAdress,
-                                          model.adresses
-                                        ],
-                                      ),
+                                      onTap: () {
+                                        print(model.firstAdress.nameOfPlace);
+                                        if (model.firstAdress.nameOfPlace !=
+                                                null &&
+                                            model.adresses[0].nameOfPlace !=
+                                                null) {
+                                          Navigator.pop(
+                                            context,
+                                            [
+                                              'OK',
+                                              model.firstAdress,
+                                              model.adresses
+                                            ],
+                                          );
+                                        } else {
+                                          Fluttertoast.showToast(
+                                              msg:
+                                                  "Choose at least two adresses",
+                                              gravity: ToastGravity.CENTER,
+                                              backgroundColor: Colors.red);
+                                        }
+                                      },
                                       child: AutoSizeText(
                                           "${kGeneralTranslates['done'][LANGUAGE]}",
                                           style: TextStyle(
@@ -282,23 +303,19 @@ class SelectAdressView extends StatelessWidget {
                                   onTap: () {
                                     if (model.activeTextfield == 0) {
                                       model.firstAdress = Adress(
-                                          nameOfPlace: model
-                                              .suggestedAdresses[index]
-                                              .nameOfPlace,
-                                          adress: model
-                                              .suggestedAdresses[index].adress);
+                                        nameOfPlace: model
+                                            .suggestedAdresses[index]
+                                            .nameOfPlace,
+                                      );
                                       model.textEditingController1.text = model
                                           .suggestedAdresses[index].nameOfPlace;
                                     } else {
                                       model.adresses[
-                                              model.activeTextfield - 1] =
-                                          Adress(
-                                              nameOfPlace: model
-                                                  .suggestedAdresses[index]
-                                                  .nameOfPlace,
-                                              adress: model
-                                                  .suggestedAdresses[index]
-                                                  .adress);
+                                          model.activeTextfield - 1] = Adress(
+                                        nameOfPlace: model
+                                            .suggestedAdresses[index]
+                                            .nameOfPlace,
+                                      );
                                       model
                                               .controllers[
                                                   model.activeTextfield - 1]
@@ -307,6 +324,10 @@ class SelectAdressView extends StatelessWidget {
                                               .nameOfPlace;
                                     }
                                     print(model.firstAdress.nameOfPlace);
+                                    // model.clearAdresses();
+                                    SystemChannels.textInput
+                                        .invokeMethod('TextInput.hide');
+                                    // setState(() {});
                                   },
                                 );
                               }),
@@ -337,7 +358,7 @@ class SelectAdressView extends StatelessWidget {
           );
         },
         viewModelBuilder: () =>
-            SelectAdressViewModel(firstAdress: firstAdress));
+            SelectAdressViewModel(firstAdress: widget.firstAdress));
   }
 }
 
@@ -386,7 +407,7 @@ class SuggestedAdress extends StatelessWidget {
                 Container(
                   width: size.width / (375 / 280),
                   child: AutoSizeText(
-                    adress.adress == null ? '' : '${adress.adress}',
+                    '',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         fontSize: 15,

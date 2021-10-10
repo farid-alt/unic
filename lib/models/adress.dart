@@ -1,15 +1,19 @@
 import 'dart:ui';
 
+import 'package:geocoder/geocoder.dart';
+
 class Adress {
   String nameOfPlace;
-  String adress;
+  // String adress;
   double lng;
   double lat;
   VoidCallback callback;
-  Adress({this.lat, this.lng, this.nameOfPlace, this.adress, this.callback});
+  Adress({this.lat, this.lng, this.nameOfPlace, this.callback});
 
-  factory Adress.fromJson(value) => Adress(
-        nameOfPlace: value['structured_formatting']['main_text'],
-        adress: value['structured_formatting']['secondary_text'],
-      );
+  factory Adress.fromJson(value) {
+    return Adress(
+      nameOfPlace: value['description'],
+      // adress: value['structured_formatting']['secondary_text'],
+    );
+  }
 }

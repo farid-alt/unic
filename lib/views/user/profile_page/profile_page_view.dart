@@ -64,13 +64,20 @@ class _UserProfilePageViewState extends State<UserProfilePageView> {
                                               builder: (context) => TakeAdress(
                                                     location:
                                                         model.user.homeAdress,
-                                                  ))).then((value) =>
-                                          model.sendAdress(
-                                              place: 'home',
-                                              adress: Adress(
-                                                  nameOfPlace: value[0],
-                                                  lat: value[1],
-                                                  lng: value[2]))),
+                                                  ))).then((value) {
+                                        model.user.homeAdress = Adress(
+                                            nameOfPlace: value[0],
+                                            lat: value[1],
+                                            lng: value[2]);
+
+                                        model.sendAdress(
+                                          place: 'home',
+                                          adress: Adress(
+                                              nameOfPlace: value[0],
+                                              lat: value[1],
+                                              lng: value[2]),
+                                        );
+                                      }),
                                       child: SavedDestinationsRow(
                                           size: size,
                                           iconAdress:
@@ -86,13 +93,19 @@ class _UserProfilePageViewState extends State<UserProfilePageView> {
                                               builder: (context) => TakeAdress(
                                                     location:
                                                         model.user.workAdress,
-                                                  ))).then((value) =>
-                                          model.sendAdress(
-                                              place: 'work',
-                                              adress: Adress(
-                                                  nameOfPlace: value[0],
-                                                  lat: value[1],
-                                                  lng: value[2]))),
+                                                  ))).then((value) {
+                                        model.user.workAdress = Adress(
+                                            nameOfPlace: value[0],
+                                            lat: value[1],
+                                            lng: value[2]);
+                                        model.sendAdress(
+                                          place: 'work',
+                                          adress: Adress(
+                                              nameOfPlace: value[0],
+                                              lat: value[1],
+                                              lng: value[2]),
+                                        );
+                                      }),
                                       child: SavedDestinationsRow(
                                           size: size,
                                           iconAdress:

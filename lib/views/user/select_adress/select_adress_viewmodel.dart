@@ -46,6 +46,11 @@ class SelectAdressViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  clearAdresses() {
+    _suggestedAdresses.clear();
+    notifyListeners();
+  }
+
   List<Adress> get suggestedAdresses => this._suggestedAdresses;
 
   void getSuggestion(String input) async {

@@ -1,3 +1,4 @@
+import 'package:unic_app/models/adress.dart';
 import 'package:unic_app/models/user/driver.dart';
 import 'package:unic_app/models/user/user.dart';
 
@@ -20,6 +21,8 @@ class Ride {
   String paymentMethod;
   String tarrifPrice;
   int rideId;
+  Adress startAdressA;
+  Adress endAdressA;
   Ride(
       {
       //   this.driverId,
@@ -39,5 +42,7 @@ class Ride {
       this.rideRating,
       this.startAdress,
       this.tarrifPrice,
+      this.startAdressA,
+      this.endAdressA,
       this.startTime});
 }

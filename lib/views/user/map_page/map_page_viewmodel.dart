@@ -79,6 +79,7 @@ class MapPageViewModel extends ChangeNotifier {
   Uint8List car2;
   LocationData _locationData;
   Location location = new Location();
+  Adress yourAdress;
   GoogleMapController _mapController;
   Vehicle _selectedVehicle = Vehicle.Moped;
   String _costOfTrip = '';
@@ -86,8 +87,8 @@ class MapPageViewModel extends ChangeNotifier {
   int _timeOfTrip = 10;
   int _distanceOfTrip = 5;
   String _paymentType = 'Cash';
-  String _timeToArriveToYouleft = '2';
-  String _timeToArriveToDestination = '5';
+  int _timeToArriveToYouleft = 0;
+  int _timeToArriveToDestination = 0;
   // PolylineResult polylineResult;
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -171,8 +172,10 @@ class MapPageViewModel extends ChangeNotifier {
   }
 
   Driver get driver => this._driver;
-  String get timeToArrivetToYouLeft => this._timeToArriveToYouleft;
-  String get timeToArrivetToDestination => this._timeToArriveToDestination;
+  String get timeToArrivetToYouLeft =>
+      (this._timeToArriveToYouleft / 60).toStringAsFixed(0);
+  String get timeToArrivetToDestination =>
+      (this._timeToArriveToDestination / 60).toStringAsFixed(0);
 
   String get paymentType => this._paymentType;
 
@@ -193,7 +196,7 @@ class MapPageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  String get timeOfTrip => this._timeOfTrip.toString();
+  String get timeOfTrip => (this._timeOfTrip / 60).toStringAsFixed(0);
   set timeOfTrip(value) {
     this._timeOfTrip = value;
     notifyListeners();
@@ -314,6 +317,7 @@ class MapPageViewModel extends ChangeNotifier {
                   id: _driver.id.toString(),
                   latitude: _driver.lat,
                   longitude: _driver.lng);
+
               // polylines.clear();
               // drawPolyline(LatLng(_driver.lat, _driver.lng),
               //     LatLng(locationData.latitude, locationData.longitude));
@@ -335,6 +339,16 @@ class MapPageViewModel extends ChangeNotifier {
               break;
             case 3:
               _status = StatusOfMap.YouAreOnWay;
+              // getDistanceBetweenPoints(
+              //         locationData.latitude,
+              //         locationData.longitude,
+              //         _adresses[0].lat,
+              //         _adresses[0].lng)
+              //     .then((val) {
+              //   // _distanceOfTrip=val[0];
+              //   _timeToArriveToDestination = val[1];
+              // });
+
               print('3');
               break;
             case 4:
@@ -375,6 +389,22 @@ class MapPageViewModel extends ChangeNotifier {
                 double.parse(e['longitude']),
               ));
           _markers['${_driver.id.toString()}'] = marker;
+          if (_status == StatusOfMap.YouAreOnWay) {
+            getDistanceBetweenPoints(locationData.latitude,
+                    locationData.longitude, _adresses[0].lat, _adresses[0].lng)
+                .then((val) {
+              // _distanceOfTrip=val[0];
+              _timeToArriveToDestination = val[1];
+            });
+          } else {
+            getDistanceBetweenPoints(locationData.latitude,
+                    locationData.longitude, _driver.lat, _driver.lng)
+                .then((val) {
+              // _distanceOfTrip=val[0];
+              _timeToArriveToYouleft = val[1];
+            });
+          }
+
           // markers[_driver.id.toString()] = Marker(
           //     markerId: MarkerId(_driver.id.toString()),
           //     position: LatLng(double.parse(e['user']['latitude']),
@@ -578,6 +608,7 @@ class MapPageViewModel extends ChangeNotifier {
 
       polylines.clear();
       polylineCoordinates.clear();
+      print("FIRST ADRESS ${_adresses[0].nameOfPlace}");
       drawPolyline(
           LatLng(
             _firstAdress.lat,
@@ -766,8 +797,7 @@ class MapPageViewModel extends ChangeNotifier {
         'customer_id': ID,
         'car_type': _selectedVehicle == Vehicle.Moped ? '0' : '1',
         'payment_method': _paymentType == 'Cash' ? '0' : '1',
-        'destination_km': //_distanceOfTrip.toString(),
-            '2',
+        'destination_km': _distanceOfTrip.toString(),
         'destination_time': _timeOfTrip,
         'destinations': json.encode(List.generate(
             _adresses.length + 1,
@@ -790,8 +820,7 @@ class MapPageViewModel extends ChangeNotifier {
         'customer_id': ID,
         'car_type': _selectedVehicle == Vehicle.Moped ? '0' : '1',
         'payment_method': _paymentType == 'Cash' ? '0' : '1',
-        'destination_km': //_distanceOfTrip.toString(),
-            '2',
+        'destination_km': (_distanceOfTrip * 1000).toString(),
         'destination_time': _timeOfTrip.toString(),
         'destination_count': (_adresses.length + 1).toString(),
         'destinations': json.encode(List.generate(
@@ -852,7 +881,7 @@ class MapPageViewModel extends ChangeNotifier {
 
     // print(response[1]['rows'][0]['elements'][0]['duration']['text']);
     print(
-        "RESPONSE ${response[1]['rows'][0]['elements'][0]['distance']['text']}");
+        "RESPONSE DISTANCE AND TIME ${response[1]['rows'][0]['elements'][0]['duration_in_traffic']['value']}");
     return [
       response[1]['rows'][0]['elements'][0]['distance']['value'],
       response[1]['rows'][0]['elements'][0]['duration_in_traffic']['value'],
@@ -873,7 +902,7 @@ class MapPageViewModel extends ChangeNotifier {
         _user = User(
           name: data[1]['data']['customer']['user']['full_name'],
           surname: ' ',
-          profilePicAdress: data[1]['data']['image'],
+          profilePicAdress: data[1]['data']['customer']['image'],
           id: data[1]['data']['customer']['user']['id'],
           // email: data[1]['data']['customer']['user']['email'],
           homeAdress: data[1]['data']['customer']['home_address'] == null
@@ -885,23 +914,23 @@ class MapPageViewModel extends ChangeNotifier {
                   lng: double.parse(
                       data[1]['data']['customer']['home_address_longitude']),
                 ),
-          workAdress: data[1]['data']['customer']['work_adress'] == null
+          workAdress: data[1]['data']['customer']['work_address'] == null
               ? Adress()
               : Adress(
-                  nameOfPlace: data[1]['data']['customer']['work_adress'],
+                  nameOfPlace: data[1]['data']['customer']['work_address'],
                   lat: double.parse(
-                      data[1]['data']['customer']['work_adress_latitude']),
+                      data[1]['data']['customer']['work_address_latitude']),
                   lng: double.parse(
-                      data[1]['data']['customer']['work_adress_longitude']),
+                      data[1]['data']['customer']['work_address_longitude']),
                 ),
-          lastAdress: data[1]['data']['customer']['last_adress'] == null
+          lastAdress: data[1]['data']['customer']['last_address'] == null
               ? Adress()
               : Adress(
-                  nameOfPlace: data[1]['data']['customer']['last_adress'],
+                  nameOfPlace: data[1]['data']['customer']['last_address'],
                   lat: double.parse(
-                      data[1]['data']['customer']['last_adress_latitude']),
+                      data[1]['data']['customer']['last_address_latitude']),
                   lng: double.parse(
-                      data[1]['data']['customer']['last_adress_longitude']),
+                      data[1]['data']['customer']['last_address_longitude']),
                 ),
           // phone: data[1]['data']['user']['phone']
         );

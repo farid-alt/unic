@@ -141,7 +141,9 @@ class _TakeAdressState extends State<TakeAdress> {
                     ],
                   );
                 }
-                return CircularProgressIndicator();
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
               }),
         ),
       ),
